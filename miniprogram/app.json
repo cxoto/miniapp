@@ -1,0 +1,46 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/apps/main",
+    "pages/logs/logs",
+    "pages/contact/contact"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "XCTools · 安神工具集",
+    "navigationBarBackgroundColor": "#ffffff"
+  },
+  "tabBar": {
+    "color": "#8a8a8a",
+    "selectedColor": "#1AAD19",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/house.png",
+        "selectedIconPath": "images/house1.png"
+      },
+      {
+        "pagePath": "pages/apps/main",
+        "text": "Apps",
+        "iconPath": "images/Cloud development-regular.png",
+        "selectedIconPath": "images/Cloud development-regular1.png"
+      },
+      {
+        "pagePath": "pages/contact/contact",
+        "text": "联系我们",
+        "iconPath": "images/bubble_circle.png",
+        "selectedIconPath": "images/bubble_circle1.png"
+      }
+    ],
+    "position": "bottom"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents",
+  "miniApp": {
+    "useAuthorizePage": true
+  }
+}

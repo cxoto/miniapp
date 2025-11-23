@@ -1,0 +1,29 @@
+<!--index.wxml-->
+<scroll-view class="scrollarea" scroll-y type="list">
+    <view style="display: flex; flex-direction: column; align-items: center; position: relative;">
+        
+        <view style="margin-top: 28.8rpx;width: 687.6rpx; padding: 28.8rpx; box-sizing: border-box; border-radius:21.6rpx; background-color: white;">
+            <text style="font-weight: 500; color: rgba(0,0,0,0.9); font-size: 27rpx;">消息推送</text>
+            <view style="font-weight: 400; color: rgba(0,0,0,0.3); font-size: 27rpx; margin-top: 14.5rpx; margin-bottom: 50rpx;">订阅小程序通知推送</view>
+            <div catch:tap="getToken" style="font-size: 25.2rpx; font-weight: 500; color: rgba(0,0,0,0.9); margin-top: 28.8rpx; margin-bottom: 20.8rpx; background-color: rgba(0,0,0,0.05); width: 144rpx; height: 57.6rpx; display: flex; justify-content: center; align-items: center; border-radius: 10.8rpx;">
+                获取Token
+            </div>
+        </view>
+
+        <view style="margin-top: 28.8rpx;width: 687.6rpx; padding: 28.8rpx; box-sizing: border-box; border-radius:21.6rpx; background-color: white;">
+            <text style="font-weight: 500; color: rgba(0,0,0,0.9); font-size: 27rpx;">备忘录</text>
+            <view style="font-weight: 400; color: rgba(0,0,0,0.3); font-size: 27rpx; margin-top: 14.5rpx; margin-bottom: 50rpx;">个人备忘录，远端私密记录，多设备查看</view>
+            <div catch:tap="showTodo" style="font-size: 25.2rpx; font-weight: 500; color: rgba(0,0,0,0.9); margin-top: 28.8rpx; margin-bottom: 20.8rpx; background-color: rgba(0,0,0,0.05); width: 144rpx; height: 57.6rpx; display: flex; justify-content: center; align-items: center; border-radius: 10.8rpx;">
+                添加记录
+            </div>
+        </view>
+
+        <view style="margin-top: 28.8rpx;width: 687.6rpx; padding: 28.8rpx; box-sizing: border-box; border-radius:21.6rpx; background-color: white;">
+            <text style="font-weight: 500; color: rgba(0,0,0,0.9); font-size: 27rpx;">快递查询</text>
+            <view style="font-weight: 400; color: rgba(0,0,0,0.3); font-size: 27rpx; margin-top: 14.5rpx; margin-bottom: 50rpx;">查询所有快递</view>
+            <div catch:tap="showTodo" style="font-size: 25.2rpx; font-weight: 500; color: rgba(0,0,0,0.9); margin-top: 28.8rpx; margin-bottom: 20.8rpx; background-color: rgba(0,0,0,0.05); width: 144rpx; height: 57.6rpx; display: flex; justify-content: center; align-items: center; border-radius: 10.8rpx;">
+                查询
+            </div>
+        </view>
+    </view>
+</scroll-view>
