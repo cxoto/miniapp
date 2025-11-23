@@ -1,0 +1,125 @@
+<view class="bookshelf-container">
+  <!-- 顶部操作栏 -->
+  <view class="header">
+    <view class="header-title">我的书架</view>
+    <view class="header-actions">
+      <view class="action-btn" bindtap="toggleEditMode">
+        <text>{{isEditMode ? '完成' : '管理'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 书籍分类标签 -->
+  <view class="category-tabs">
+    <view
+      class="tab-item {{currentCategory === 'all' ? 'active' : ''}}"
+      bindtap="switchCategory"
+      data-category="all"
+    >
+      全部
+    </view>
+    <view
+      class="tab-item {{currentCategory === 'reading' ? 'active' : ''}}"
+      bindtap="switchCategory"
+      data-category="reading"
+    >
+      在读
+    </view>
+    <view
+      class="tab-item {{currentCategory === 'finished' ? 'active' : ''}}"
+      bindtap="switchCategory"
+      data-category="finished"
+    >
+      已读完
+    </view>
+  </view>
+
+  <!-- 书架网格 -->
+  <scroll-view class="bookshelf-scroll" scroll-y="true" enhanced="true" show-scrollbar="false">
+    <view class="book-grid">
+      <!-- 添加书籍按钮 -->
+      <view class="book-item add-book" bindtap="addBook">
+        <view class="add-icon">+</view>
+        <text class="add-text">添加书籍</text>
+      </view>
+
+      <!-- 书籍列表 -->
+      <view
+        class="book-item {{isEditMode ? 'edit-mode' : ''}}"
+        wx:for="{{bookList}}"
+        wx:key="id"
+        bindtap="{{isEditMode ? 'toggleSelectBook' : 'openBook'}}"
+        data-id="{{item.id}}"
+        data-index="{{index}}"
+      >
+        <!-- 编辑模式选择框 -->
+        <view class="select-checkbox {{item.selected ? 'selected' : ''}}" wx:if="{{isEditMode}}">
+          <view class="checkbox-inner" wx:if="{{item.selected}}">✓</view>
+        </view>
+
+        <!-- 书籍封面 -->
+        <view class="book-cover" style="background-color: {{item.coverColor || '#4A90D9'}}">
+          <image
+            wx:if="{{item.coverUrl}}"
+            src="{{item.coverUrl}}"
+            mode="aspectFill"
+            class="cover-image"
+          />
+          <view wx:else class="cover-placeholder">
+            <text class="cover-title">{{item.title}}</text>
+            <text class="cover-author">{{item.author || '未知作者'}}</text>
+          </view>
+        </view>
+
+        <!-- 书籍信息 -->
+        <view class="book-info">
+          <text class="book-title">{{item.title}}</text>
+          <text class="book-progress">{{item.progress || 0}}%</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{bookList.length === 0}}">
+      <view class="empty-icon">📚</view>
+      <text class="empty-text">书架空空如也</text>
+      <text class="empty-hint">点击上方"+"添加书籍开始阅读</text>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作栏（编辑模式） -->
+  <view class="bottom-bar" wx:if="{{isEditMode}}">
+    <view class="bar-item" bindtap="selectAll">
+      <text>{{isAllSelected ? '取消全选' : '全选'}}</text>
+    </view>
+    <view class="bar-item delete" bindtap="deleteSelected">
+      <text>删除 ({{selectedCount}})</text>
+    </view>
+  </view>
+</view>
+
+<!-- 添加书籍弹窗 -->
+<view class="modal-mask" wx:if="{{showAddModal}}" bindtap="closeAddModal">
+  <view class="modal-content" catchtap="preventBubble">
+    <view class="modal-header">
+      <text class="modal-title">添加书籍</text>
+      <view class="modal-close" bindtap="closeAddModal">×</view>
+    </view>
+    <view class="modal-body">
+      <view class="import-option" bindtap="importFromFile">
+        <view class="option-icon">📄</view>
+        <view class="option-info">
+          <text class="option-title">从文件导入</text>
+          <text class="option-desc">支持 TXT、EPUB 格式</text>
+        </view>
+      </view>
+      <view class="import-option" bindtap="importFromChat">
+        <view class="option-icon">💬</view>
+        <view class="option-info">
+          <text class="option-title">从聊天记录导入</text>
+          <text class="option-desc">选择微信聊天中的文件</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

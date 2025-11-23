@@ -1,0 +1,558 @@
+/* Microsoft To Do 风格样式 */
+.todo-container {
+  display: flex;
+  height: 100vh;
+  background-color: #faf9f8;
+  position: relative;
+}
+
+/* 左侧边栏 */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 560rpx;
+  background-color: #fff;
+  box-shadow: 2rpx 0 8rpx rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.visible {
+  transform: translateX(0);
+}
+
+.sidebar-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.sidebar-mask.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar-header {
+  padding: 32rpx;
+  padding-top: calc(32rpx + env(safe-area-inset-top));
+  border-bottom: 1rpx solid #edebe9;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0078d4, #106ebe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.avatar text {
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.user-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #323130;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.list-section {
+  padding: 16rpx 0;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 32rpx;
+  transition: background-color 0.2s;
+}
+
+.list-item:active,
+.list-item.active {
+  background-color: #edebe9;
+}
+
+.list-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  margin-right: 20rpx;
+}
+
+.list-icon.myday {
+  color: #d83b01;
+}
+
+.list-icon.important {
+  color: #d83b01;
+}
+
+.list-icon.planned {
+  color: #0078d4;
+}
+
+.list-icon.all {
+  color: #0078d4;
+}
+
+.list-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #323130;
+}
+
+.list-count {
+  font-size: 24rpx;
+  color: #605e5c;
+  padding: 4rpx 12rpx;
+  background-color: #edebe9;
+  border-radius: 16rpx;
+}
+
+.list-divider {
+  height: 1rpx;
+  background-color: #edebe9;
+  margin: 8rpx 32rpx;
+}
+
+.new-list-btn {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 32rpx;
+  margin-top: 8rpx;
+}
+
+.new-list-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #0078d4;
+  margin-right: 20rpx;
+}
+
+.new-list-text {
+  font-size: 28rpx;
+  color: #0078d4;
+}
+
+/* 主内容区域 */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  padding-top: calc(24rpx + env(safe-area-inset-top));
+  background-color: #0078d4;
+  color: #fff;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.menu-btn {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-right: 16rpx;
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.title-text {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.title-date {
+  font-size: 24rpx;
+  opacity: 0.9;
+  margin-top: 4rpx;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-btn {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+}
+
+/* 任务列表 */
+.task-list {
+  flex: 1;
+  padding: 24rpx;
+}
+
+.add-task-wrapper {
+  margin-bottom: 24rpx;
+}
+
+.add-task-box {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+
+.add-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: #0078d4;
+  margin-right: 16rpx;
+}
+
+.add-input {
+  flex: 1;
+  font-size: 30rpx;
+  color: #323130;
+}
+
+.quick-actions {
+  display: flex;
+  margin-top: 16rpx;
+  padding-left: 64rpx;
+}
+
+.quick-btn {
+  padding: 12rpx 20rpx;
+  background-color: #fff;
+  border-radius: 8rpx;
+  margin-right: 16rpx;
+  font-size: 28rpx;
+}
+
+.quick-btn.active {
+  background-color: #deecf9;
+  color: #0078d4;
+}
+
+/* 任务项 */
+.task-section {
+  margin-bottom: 24rpx;
+}
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  background-color: #fff;
+  border-radius: 8rpx;
+  padding: 24rpx;
+  margin-bottom: 8rpx;
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.05);
+}
+
+.task-item.completed {
+  opacity: 0.7;
+}
+
+.task-checkbox {
+  margin-right: 16rpx;
+  padding: 4rpx;
+}
+
+.checkbox-circle {
+  width: 40rpx;
+  height: 40rpx;
+  border: 3rpx solid #605e5c;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: transparent;
+  transition: all 0.2s;
+}
+
+.checkbox-circle.completed {
+  background-color: #0078d4;
+  border-color: #0078d4;
+  color: #fff;
+}
+
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-title {
+  font-size: 30rpx;
+  color: #323130;
+  word-break: break-all;
+}
+
+.task-title.completed {
+  text-decoration: line-through;
+  color: #a19f9d;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 8rpx;
+}
+
+.meta-item {
+  font-size: 22rpx;
+  color: #605e5c;
+  margin-right: 16rpx;
+  padding: 4rpx 0;
+}
+
+.meta-item.myday {
+  color: #d83b01;
+}
+
+.meta-item.due {
+  color: #0078d4;
+}
+
+.meta-item.overdue {
+  color: #a4262c;
+}
+
+.task-star {
+  padding: 4rpx 8rpx;
+  font-size: 32rpx;
+  color: #a19f9d;
+}
+
+.task-star.active {
+  color: #0078d4;
+}
+
+/* 已完成区域 */
+.completed-section {
+  margin-top: 24rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.section-toggle {
+  font-size: 24rpx;
+  color: #605e5c;
+  margin-right: 12rpx;
+}
+
+.section-title {
+  font-size: 26rpx;
+  color: #605e5c;
+}
+
+.section-count {
+  font-size: 24rpx;
+  color: #a19f9d;
+  margin-left: 12rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #605e5c;
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 200;
+}
+
+.modal-mask.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  width: 600rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 32rpx;
+  border-bottom: 1rpx solid #edebe9;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323130;
+}
+
+.modal-body {
+  padding: 32rpx;
+}
+
+.list-name-input {
+  width: 100%;
+  height: 80rpx;
+  border: 2rpx solid #edebe9;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 30rpx;
+  margin-bottom: 24rpx;
+}
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.color-option {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  border: 4rpx solid transparent;
+}
+
+.color-option.active {
+  border-color: #323130;
+}
+
+.modal-footer {
+  display: flex;
+  border-top: 1rpx solid #edebe9;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 28rpx;
+  text-align: center;
+  font-size: 30rpx;
+}
+
+.modal-btn.cancel {
+  color: #605e5c;
+}
+
+.modal-btn.confirm {
+  color: #0078d4;
+  font-weight: 600;
+}
+
+/* 日期选择器 */
+.date-picker-content {
+  width: 600rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+}
+
+.date-header {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323130;
+  margin-bottom: 24rpx;
+}
+
+.date-shortcuts {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-shortcut {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  border-bottom: 1rpx solid #edebe9;
+}
+
+.shortcut-icon {
+  font-size: 32rpx;
+  margin-right: 20rpx;
+}
+
+.date-custom {
+  padding: 24rpx 16rpx;
+  color: #0078d4;
+  font-size: 28rpx;
+}

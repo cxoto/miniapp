@@ -1,0 +1,255 @@
+<view class="todo-container">
+  <!-- 左侧边栏 -->
+  <view class="sidebar {{showSidebar ? 'visible' : ''}}">
+    <view class="sidebar-header">
+      <view class="user-info">
+        <view class="avatar">
+          <text>{{userInitial}}</text>
+        </view>
+        <view class="user-name">{{userName || '我的任务'}}</view>
+      </view>
+    </view>
+
+    <scroll-view class="sidebar-content" scroll-y="true">
+      <!-- 智能列表 -->
+      <view class="list-section">
+        <view
+          class="list-item {{currentListId === 'myday' ? 'active' : ''}}"
+          bindtap="switchList"
+          data-id="myday"
+        >
+          <view class="list-icon myday">☀</view>
+          <text class="list-name">我的一天</text>
+          <text class="list-count" wx:if="{{smartLists.myday > 0}}">{{smartLists.myday}}</text>
+        </view>
+
+        <view
+          class="list-item {{currentListId === 'important' ? 'active' : ''}}"
+          bindtap="switchList"
+          data-id="important"
+        >
+          <view class="list-icon important">★</view>
+          <text class="list-name">重要</text>
+          <text class="list-count" wx:if="{{smartLists.important > 0}}">{{smartLists.important}}</text>
+        </view>
+
+        <view
+          class="list-item {{currentListId === 'planned' ? 'active' : ''}}"
+          bindtap="switchList"
+          data-id="planned"
+        >
+          <view class="list-icon planned">📅</view>
+          <text class="list-name">计划内</text>
+          <text class="list-count" wx:if="{{smartLists.planned > 0}}">{{smartLists.planned}}</text>
+        </view>
+
+        <view
+          class="list-item {{currentListId === 'all' ? 'active' : ''}}"
+          bindtap="switchList"
+          data-id="all"
+        >
+          <view class="list-icon all">📋</view>
+          <text class="list-name">全部</text>
+          <text class="list-count" wx:if="{{smartLists.all > 0}}">{{smartLists.all}}</text>
+        </view>
+      </view>
+
+      <view class="list-divider"></view>
+
+      <!-- 自定义列表 -->
+      <view class="list-section">
+        <view
+          class="list-item {{currentListId === item.id ? 'active' : ''}}"
+          wx:for="{{customLists}}"
+          wx:key="id"
+          bindtap="switchList"
+          data-id="{{item.id}}"
+          bindlongpress="showListOptions"
+          data-list="{{item}}"
+        >
+          <view class="list-icon custom" style="color: {{item.color || '#4A90D9'}}">☰</view>
+          <text class="list-name">{{item.name}}</text>
+          <text class="list-count" wx:if="{{item.count > 0}}">{{item.count}}</text>
+        </view>
+      </view>
+
+      <!-- 新建列表 -->
+      <view class="new-list-btn" bindtap="showNewListModal">
+        <text class="new-list-icon">+</text>
+        <text class="new-list-text">新建列表</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 遮罩层（移动端） -->
+  <view class="sidebar-mask {{showSidebar ? 'visible' : ''}}" bindtap="toggleSidebar"></view>
+
+  <!-- 主内容区域 -->
+  <view class="main-content">
+    <!-- 顶部标题栏 -->
+    <view class="main-header" style="background-color: {{currentListColor}}">
+      <view class="header-left">
+        <view class="menu-btn" bindtap="toggleSidebar">☰</view>
+        <view class="header-title">
+          <text class="title-text">{{currentListName}}</text>
+          <text class="title-date" wx:if="{{currentListId === 'myday'}}">{{todayDate}}</text>
+        </view>
+      </view>
+      <view class="header-right">
+        <view class="header-btn" bindtap="toggleSort">⇅</view>
+        <view class="header-btn" bindtap="showListSettings" wx:if="{{!isSmartList}}">⋮</view>
+      </view>
+    </view>
+
+    <!-- 任务列表 -->
+    <scroll-view class="task-list" scroll-y="true">
+      <!-- 添加任务输入框 -->
+      <view class="add-task-wrapper">
+        <view class="add-task-box" bindtap="focusAddInput">
+          <text class="add-icon">+</text>
+          <input
+            class="add-input"
+            placeholder="添加任务"
+            value="{{newTaskTitle}}"
+            bindinput="onNewTaskInput"
+            bindconfirm="addTask"
+            confirm-type="done"
+            focus="{{addInputFocus}}"
+          />
+        </view>
+        <view class="quick-actions" wx:if="{{newTaskTitle}}">
+          <view class="quick-btn {{newTaskMyDay ? 'active' : ''}}" bindtap="toggleNewTaskMyDay">
+            <text>☀</text>
+          </view>
+          <view class="quick-btn" bindtap="showDatePicker">
+            <text>📅</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 未完成任务 -->
+      <view class="task-section">
+        <view
+          class="task-item"
+          wx:for="{{incompleteTasks}}"
+          wx:key="id"
+          bindtap="openTaskDetail"
+          data-id="{{item.id}}"
+        >
+          <view class="task-checkbox" catchtap="toggleTaskComplete" data-id="{{item.id}}">
+            <view class="checkbox-circle {{item.completed ? 'completed' : ''}}">
+              <text wx:if="{{item.completed}}">✓</text>
+            </view>
+          </view>
+          <view class="task-content">
+            <text class="task-title {{item.completed ? 'completed' : ''}}">{{item.title}}</text>
+            <view class="task-meta">
+              <text class="meta-item myday" wx:if="{{item.myDay}}">☀ 我的一天</text>
+              <text class="meta-item due {{item.isOverdue ? 'overdue' : ''}}" wx:if="{{item.dueDate}}">
+                📅 {{item.dueDateStr}}
+              </text>
+              <text class="meta-item subtask" wx:if="{{item.subtasks && item.subtasks.length > 0}}">
+                {{item.completedSubtasks || 0}}/{{item.subtasks.length}}
+              </text>
+            </view>
+          </view>
+          <view class="task-star {{item.important ? 'active' : ''}}" catchtap="toggleTaskImportant" data-id="{{item.id}}">
+            <text>{{item.important ? '★' : '☆'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 已完成任务 -->
+      <view class="completed-section" wx:if="{{completedTasks.length > 0}}">
+        <view class="section-header" bindtap="toggleCompletedSection">
+          <text class="section-toggle">{{showCompleted ? '▼' : '▶'}}</text>
+          <text class="section-title">已完成</text>
+          <text class="section-count">{{completedTasks.length}}</text>
+        </view>
+        <view wx:if="{{showCompleted}}">
+          <view
+            class="task-item completed"
+            wx:for="{{completedTasks}}"
+            wx:key="id"
+            bindtap="openTaskDetail"
+            data-id="{{item.id}}"
+          >
+            <view class="task-checkbox" catchtap="toggleTaskComplete" data-id="{{item.id}}">
+              <view class="checkbox-circle completed">
+                <text>✓</text>
+              </view>
+            </view>
+            <view class="task-content">
+              <text class="task-title completed">{{item.title}}</text>
+            </view>
+            <view class="task-star {{item.important ? 'active' : ''}}" catchtap="toggleTaskImportant" data-id="{{item.id}}">
+              <text>{{item.important ? '★' : '☆'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{incompleteTasks.length === 0 && completedTasks.length === 0}}">
+        <view class="empty-icon">{{emptyIcon}}</view>
+        <text class="empty-text">{{emptyText}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 新建列表弹窗 -->
+  <view class="modal-mask {{showNewList ? 'visible' : ''}}" bindtap="hideNewListModal">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">新建列表</text>
+      </view>
+      <view class="modal-body">
+        <input
+          class="list-name-input"
+          placeholder="输入列表名称"
+          value="{{newListName}}"
+          bindinput="onNewListNameInput"
+          focus="{{newListInputFocus}}"
+        />
+        <view class="color-picker">
+          <view
+            class="color-option {{newListColor === item ? 'active' : ''}}"
+            wx:for="{{colorOptions}}"
+            wx:key="*this"
+            style="background-color: {{item}}"
+            bindtap="selectListColor"
+            data-color="{{item}}"
+          ></view>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="hideNewListModal">取消</view>
+        <view class="modal-btn confirm" bindtap="createNewList">创建</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 日期选择器 -->
+  <view class="modal-mask {{showDatePickerModal ? 'visible' : ''}}" bindtap="hideDatePicker">
+    <view class="date-picker-content" catchtap="preventBubble">
+      <view class="date-header">选择日期</view>
+      <view class="date-shortcuts">
+        <view class="date-shortcut" bindtap="setDueDate" data-type="today">
+          <text class="shortcut-icon">☀</text>
+          <text>今天</text>
+        </view>
+        <view class="date-shortcut" bindtap="setDueDate" data-type="tomorrow">
+          <text class="shortcut-icon">📅</text>
+          <text>明天</text>
+        </view>
+        <view class="date-shortcut" bindtap="setDueDate" data-type="nextweek">
+          <text class="shortcut-icon">📆</text>
+          <text>下周</text>
+        </view>
+      </view>
+      <picker mode="date" value="{{pickerDate}}" bindchange="onDateChange">
+        <view class="date-custom">选择具体日期</view>
+      </picker>
+    </view>
+  </view>
+</view>

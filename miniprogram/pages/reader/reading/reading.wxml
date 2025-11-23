@@ -1,0 +1,230 @@
+<view class="reading-container" style="background-color: {{settings.backgroundColor}}; color: {{settings.textColor}}">
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar {{showMenu ? 'visible' : ''}}" style="padding-top: {{statusBarHeight}}px">
+    <view class="nav-back" bindtap="goBack">
+      <text class="back-icon">‹</text>
+    </view>
+    <view class="nav-title">{{bookInfo.title}}</view>
+    <view class="nav-actions">
+      <view class="nav-btn" bindtap="toggleBookmark">
+        <text class="{{isBookmarked ? 'bookmarked' : ''}}">{{isBookmarked ? '★' : '☆'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 阅读内容区域 -->
+  <view
+    class="content-area"
+    bindtap="toggleMenu"
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    style="padding-top: {{statusBarHeight + 44}}px; font-size: {{settings.fontSize}}rpx; line-height: {{settings.lineHeight}}"
+  >
+    <!-- 章节标题 -->
+    <view class="chapter-title" wx:if="{{currentChapter.title}}">
+      {{currentChapter.title}}
+    </view>
+
+    <!-- 文本内容 -->
+    <view class="text-content">
+      <text selectable="true">{{currentContent}}</text>
+    </view>
+
+    <!-- 页面指示器 -->
+    <view class="page-indicator">
+      <text>{{currentPage}} / {{totalPages}}</text>
+    </view>
+  </view>
+
+  <!-- 底部菜单栏 -->
+  <view class="bottom-menu {{showMenu ? 'visible' : ''}}">
+    <!-- 进度条 -->
+    <view class="progress-section">
+      <text class="progress-text">{{Math.floor(progress)}}%</text>
+      <slider
+        class="progress-slider"
+        min="0"
+        max="100"
+        value="{{progress}}"
+        activeColor="#07c160"
+        block-size="20"
+        bindchange="onProgressChange"
+      />
+    </view>
+
+    <!-- 功能按钮 -->
+    <view class="menu-buttons">
+      <view class="menu-btn" bindtap="showCatalog">
+        <view class="btn-icon">☰</view>
+        <text class="btn-text">目录</text>
+      </view>
+      <view class="menu-btn" bindtap="showBookmarks">
+        <view class="btn-icon">★</view>
+        <text class="btn-text">书签</text>
+      </view>
+      <view class="menu-btn" bindtap="toggleNightMode">
+        <view class="btn-icon">{{settings.isNightMode ? '☀' : '☾'}}</view>
+        <text class="btn-text">{{settings.isNightMode ? '日间' : '夜间'}}</text>
+      </view>
+      <view class="menu-btn" bindtap="showSettings">
+        <view class="btn-icon">⚙</view>
+        <text class="btn-text">设置</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 目录面板 -->
+  <view class="panel-mask {{showCatalogPanel ? 'visible' : ''}}" bindtap="closeCatalog">
+    <view class="catalog-panel {{showCatalogPanel ? 'visible' : ''}}" catchtap="preventBubble">
+      <view class="panel-header">
+        <text class="panel-title">目录</text>
+        <view class="panel-tabs">
+          <view
+            class="panel-tab {{catalogTab === 'chapters' ? 'active' : ''}}"
+            bindtap="switchCatalogTab"
+            data-tab="chapters"
+          >章节</view>
+          <view
+            class="panel-tab {{catalogTab === 'bookmarks' ? 'active' : ''}}"
+            bindtap="switchCatalogTab"
+            data-tab="bookmarks"
+          >书签</view>
+        </view>
+      </view>
+      <scroll-view class="panel-content" scroll-y="true">
+        <!-- 章节列表 -->
+        <view wx:if="{{catalogTab === 'chapters'}}">
+          <view
+            class="chapter-item {{item.index === currentChapterIndex ? 'active' : ''}}"
+            wx:for="{{chapters}}"
+            wx:key="index"
+            bindtap="jumpToChapter"
+            data-index="{{item.index}}"
+          >
+            <text class="chapter-name">{{item.title}}</text>
+          </view>
+          <view class="empty-tip" wx:if="{{chapters.length === 0}}">
+            <text>暂无章节信息</text>
+          </view>
+        </view>
+        <!-- 书签列表 -->
+        <view wx:if="{{catalogTab === 'bookmarks'}}">
+          <view
+            class="bookmark-item"
+            wx:for="{{bookmarks}}"
+            wx:key="id"
+            bindtap="jumpToBookmark"
+            data-index="{{index}}"
+          >
+            <view class="bookmark-content">{{item.content}}</view>
+            <view class="bookmark-info">
+              <text class="bookmark-chapter">{{item.chapterTitle}}</text>
+              <text class="bookmark-time">{{item.timeStr}}</text>
+            </view>
+          </view>
+          <view class="empty-tip" wx:if="{{bookmarks.length === 0}}">
+            <text>暂无书签</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 设置面板 -->
+  <view class="panel-mask {{showSettingsPanel ? 'visible' : ''}}" bindtap="closeSettings">
+    <view class="settings-panel {{showSettingsPanel ? 'visible' : ''}}" catchtap="preventBubble">
+      <view class="settings-header">
+        <text class="settings-title">阅读设置</text>
+      </view>
+
+      <!-- 字体大小 -->
+      <view class="settings-row">
+        <text class="settings-label">字体大小</text>
+        <view class="font-size-control">
+          <view class="size-btn" bindtap="decreaseFontSize">A-</view>
+          <text class="size-value">{{settings.fontSize}}</text>
+          <view class="size-btn" bindtap="increaseFontSize">A+</view>
+        </view>
+      </view>
+
+      <!-- 行间距 -->
+      <view class="settings-row">
+        <text class="settings-label">行间距</text>
+        <view class="line-height-options">
+          <view
+            class="lh-option {{settings.lineHeight === 1.5 ? 'active' : ''}}"
+            bindtap="setLineHeight"
+            data-value="1.5"
+          >紧凑</view>
+          <view
+            class="lh-option {{settings.lineHeight === 1.8 ? 'active' : ''}}"
+            bindtap="setLineHeight"
+            data-value="1.8"
+          >适中</view>
+          <view
+            class="lh-option {{settings.lineHeight === 2.2 ? 'active' : ''}}"
+            bindtap="setLineHeight"
+            data-value="2.2"
+          >宽松</view>
+        </view>
+      </view>
+
+      <!-- 背景颜色 -->
+      <view class="settings-row">
+        <text class="settings-label">背景颜色</text>
+        <view class="bg-options">
+          <view
+            class="bg-option {{settings.bgTheme === 'white' ? 'active' : ''}}"
+            style="background-color: #ffffff"
+            bindtap="setBgTheme"
+            data-theme="white"
+          ></view>
+          <view
+            class="bg-option {{settings.bgTheme === 'sepia' ? 'active' : ''}}"
+            style="background-color: #f5e6c8"
+            bindtap="setBgTheme"
+            data-theme="sepia"
+          ></view>
+          <view
+            class="bg-option {{settings.bgTheme === 'green' ? 'active' : ''}}"
+            style="background-color: #c7edcc"
+            bindtap="setBgTheme"
+            data-theme="green"
+          ></view>
+          <view
+            class="bg-option {{settings.bgTheme === 'dark' ? 'active' : ''}}"
+            style="background-color: #1a1a1a"
+            bindtap="setBgTheme"
+            data-theme="dark"
+          ></view>
+        </view>
+      </view>
+
+      <!-- 翻页模式 -->
+      <view class="settings-row">
+        <text class="settings-label">翻页模式</text>
+        <view class="page-mode-options">
+          <view
+            class="mode-option {{settings.pageMode === 'slide' ? 'active' : ''}}"
+            bindtap="setPageMode"
+            data-mode="slide"
+          >滑动</view>
+          <view
+            class="mode-option {{settings.pageMode === 'scroll' ? 'active' : ''}}"
+            bindtap="setPageMode"
+            data-mode="scroll"
+          >滚动</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载提示 -->
+  <view class="loading-mask" wx:if="{{isLoading}}">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+  </view>
+</view>

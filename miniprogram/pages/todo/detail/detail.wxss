@@ -1,0 +1,383 @@
+/* 任务详情页样式 */
+.detail-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #faf9f8;
+}
+
+/* 顶部操作栏 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #edebe9;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.back-icon {
+  font-size: 48rpx;
+  color: #0078d4;
+  margin-right: 8rpx;
+}
+
+.back-text {
+  font-size: 30rpx;
+  color: #0078d4;
+}
+
+.delete-btn {
+  font-size: 28rpx;
+  color: #a4262c;
+  padding: 12rpx 24rpx;
+}
+
+/* 内容区域 */
+.detail-content {
+  flex: 1;
+  padding: 24rpx;
+}
+
+.task-main {
+  background-color: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+/* 任务头部 */
+.task-header {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #edebe9;
+}
+
+.task-checkbox {
+  margin-right: 16rpx;
+}
+
+.checkbox-circle {
+  width: 48rpx;
+  height: 48rpx;
+  border: 3rpx solid #605e5c;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: transparent;
+}
+
+.checkbox-circle.completed {
+  background-color: #0078d4;
+  border-color: #0078d4;
+  color: #fff;
+}
+
+.task-title-input {
+  flex: 1;
+  font-size: 34rpx;
+  color: #323130;
+  padding: 8rpx 0;
+}
+
+.task-title-input.completed {
+  text-decoration: line-through;
+  color: #a19f9d;
+}
+
+.task-star {
+  padding: 8rpx 16rpx;
+  font-size: 40rpx;
+  color: #a19f9d;
+}
+
+.task-star.active {
+  color: #0078d4;
+}
+
+/* 分区样式 */
+.section {
+  border-bottom: 1rpx solid #edebe9;
+}
+
+/* 子任务区域 */
+.subtasks-section {
+  padding: 16rpx 24rpx;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.subtask-checkbox {
+  margin-right: 12rpx;
+}
+
+.checkbox-small {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid #605e5c;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  color: transparent;
+}
+
+.checkbox-small.completed {
+  background-color: #0078d4;
+  border-color: #0078d4;
+  color: #fff;
+}
+
+.subtask-title {
+  flex: 1;
+  font-size: 28rpx;
+  color: #323130;
+}
+
+.subtask-title.completed {
+  text-decoration: line-through;
+  color: #a19f9d;
+}
+
+.subtask-delete {
+  padding: 8rpx 16rpx;
+  font-size: 32rpx;
+  color: #a19f9d;
+}
+
+.add-subtask {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.add-icon {
+  width: 36rpx;
+  height: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #0078d4;
+  margin-right: 12rpx;
+}
+
+.add-text {
+  font-size: 28rpx;
+  color: #0078d4;
+}
+
+.subtask-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #323130;
+}
+
+/* 选项区域 */
+.option-section {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+}
+
+.option-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #605e5c;
+  margin-right: 20rpx;
+}
+
+.option-icon.active {
+  color: #0078d4;
+}
+
+.option-icon.overdue {
+  color: #a4262c;
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-text {
+  font-size: 28rpx;
+  color: #605e5c;
+}
+
+.option-text.active {
+  color: #0078d4;
+}
+
+.option-text.overdue {
+  color: #a4262c;
+}
+
+.option-action {
+  padding: 8rpx;
+}
+
+.remove-btn {
+  font-size: 36rpx;
+  color: #a19f9d;
+}
+
+/* 备注区域 */
+.note-section {
+  padding: 24rpx;
+}
+
+.note-input {
+  width: 100%;
+  font-size: 28rpx;
+  color: #323130;
+  min-height: 120rpx;
+}
+
+/* 底部信息 */
+.footer {
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background-color: #fff;
+  border-top: 1rpx solid #edebe9;
+}
+
+.created-info,
+.completed-info {
+  font-size: 24rpx;
+  color: #a19f9d;
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 100;
+}
+
+.modal-mask.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.picker-content {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.picker-header {
+  padding: 32rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323130;
+  border-bottom: 1rpx solid #edebe9;
+}
+
+.picker-shortcuts {
+  padding: 16rpx 0;
+}
+
+.picker-shortcut {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+}
+
+.shortcut-icon {
+  font-size: 32rpx;
+  margin-right: 20rpx;
+}
+
+.shortcut-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #323130;
+}
+
+.shortcut-date {
+  font-size: 26rpx;
+  color: #605e5c;
+}
+
+.picker-custom {
+  padding: 24rpx 32rpx;
+  font-size: 30rpx;
+  color: #0078d4;
+  border-top: 1rpx solid #edebe9;
+}
+
+/* 列表选择器 */
+.list-selector {
+  max-height: 600rpx;
+  padding: 16rpx 0;
+}
+
+.list-option {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+}
+
+.list-option.active {
+  background-color: #deecf9;
+}
+
+.list-color {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 8rpx;
+  margin-right: 20rpx;
+}
+
+.list-name {
+  flex: 1;
+  font-size: 30rpx;
+  color: #323130;
+}
+
+.list-check {
+  font-size: 28rpx;
+  color: #0078d4;
+}
+
+/* 重复选项 */
+.repeat-options {
+  padding: 16rpx 0;
+}
+
+.repeat-option {
+  padding: 24rpx 32rpx;
+  font-size: 30rpx;
+  color: #323130;
+  border-bottom: 1rpx solid #edebe9;
+}
+
+.repeat-option:last-child {
+  border-bottom: none;
+}

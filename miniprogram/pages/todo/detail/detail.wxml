@@ -1,0 +1,218 @@
+<view class="detail-container">
+  <!-- 顶部操作栏 -->
+  <view class="header">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-icon">‹</text>
+      <text class="back-text">返回</text>
+    </view>
+    <view class="header-right">
+      <view class="delete-btn" bindtap="deleteTask">删除</view>
+    </view>
+  </view>
+
+  <scroll-view class="detail-content" scroll-y="true">
+    <!-- 任务主体 -->
+    <view class="task-main">
+      <!-- 完成状态和标题 -->
+      <view class="task-header">
+        <view class="task-checkbox" bindtap="toggleComplete">
+          <view class="checkbox-circle {{task.completed ? 'completed' : ''}}">
+            <text wx:if="{{task.completed}}">✓</text>
+          </view>
+        </view>
+        <input
+          class="task-title-input {{task.completed ? 'completed' : ''}}"
+          value="{{task.title}}"
+          bindinput="onTitleInput"
+          bindblur="saveTask"
+        />
+        <view class="task-star {{task.important ? 'active' : ''}}" bindtap="toggleImportant">
+          <text>{{task.important ? '★' : '☆'}}</text>
+        </view>
+      </view>
+
+      <!-- 子任务 -->
+      <view class="section subtasks-section">
+        <view class="subtask-list">
+          <view
+            class="subtask-item"
+            wx:for="{{task.subtasks}}"
+            wx:key="id"
+          >
+            <view class="subtask-checkbox" bindtap="toggleSubtask" data-id="{{item.id}}">
+              <view class="checkbox-small {{item.completed ? 'completed' : ''}}">
+                <text wx:if="{{item.completed}}">✓</text>
+              </view>
+            </view>
+            <input
+              class="subtask-title {{item.completed ? 'completed' : ''}}"
+              value="{{item.title}}"
+              bindinput="onSubtaskInput"
+              data-id="{{item.id}}"
+              bindblur="saveTask"
+            />
+            <view class="subtask-delete" bindtap="deleteSubtask" data-id="{{item.id}}">×</view>
+          </view>
+        </view>
+        <view class="add-subtask" bindtap="showAddSubtask">
+          <text class="add-icon">+</text>
+          <input
+            wx:if="{{showSubtaskInput}}"
+            class="subtask-input"
+            placeholder="添加步骤"
+            focus="{{showSubtaskInput}}"
+            bindconfirm="addSubtask"
+            bindblur="hideAddSubtask"
+          />
+          <text wx:else class="add-text">添加步骤</text>
+        </view>
+      </view>
+
+      <!-- 添加到"我的一天" -->
+      <view class="section option-section" bindtap="toggleMyDay">
+        <view class="option-icon {{task.myDay ? 'active' : ''}}">☀</view>
+        <view class="option-content">
+          <text class="option-text {{task.myDay ? 'active' : ''}}">
+            {{task.myDay ? '已添加到"我的一天"' : '添加到"我的一天"'}}
+          </text>
+        </view>
+        <view class="option-action" wx:if="{{task.myDay}}">
+          <text class="remove-btn" catchtap="removeMyDay">×</text>
+        </view>
+      </view>
+
+      <!-- 提醒 -->
+      <view class="section option-section" bindtap="showReminderPicker">
+        <view class="option-icon">🔔</view>
+        <view class="option-content">
+          <text class="option-text" wx:if="{{!task.reminder}}">提醒我</text>
+          <view wx:else>
+            <text class="option-text active">{{task.reminderStr}}</text>
+          </view>
+        </view>
+        <view class="option-action" wx:if="{{task.reminder}}">
+          <text class="remove-btn" catchtap="removeReminder">×</text>
+        </view>
+      </view>
+
+      <!-- 截止日期 -->
+      <view class="section option-section" bindtap="showDueDatePicker">
+        <view class="option-icon {{task.isOverdue ? 'overdue' : ''}}">📅</view>
+        <view class="option-content">
+          <text class="option-text" wx:if="{{!task.dueDate}}">添加截止日期</text>
+          <view wx:else>
+            <text class="option-text {{task.isOverdue ? 'overdue' : 'active'}}">
+              截止于 {{task.dueDateStr}}
+            </text>
+          </view>
+        </view>
+        <view class="option-action" wx:if="{{task.dueDate}}">
+          <text class="remove-btn" catchtap="removeDueDate">×</text>
+        </view>
+      </view>
+
+      <!-- 重复 -->
+      <view class="section option-section" bindtap="showRepeatPicker">
+        <view class="option-icon">🔁</view>
+        <view class="option-content">
+          <text class="option-text" wx:if="{{!task.repeat}}">重复</text>
+          <text class="option-text active" wx:else>{{task.repeatStr}}</text>
+        </view>
+        <view class="option-action" wx:if="{{task.repeat}}">
+          <text class="remove-btn" catchtap="removeRepeat">×</text>
+        </view>
+      </view>
+
+      <!-- 分类列表 -->
+      <view class="section option-section" bindtap="showListPicker">
+        <view class="option-icon" style="color: {{currentList.color || '#0078d4'}}">☰</view>
+        <view class="option-content">
+          <text class="option-text">{{currentList.name || '任务'}}</text>
+        </view>
+      </view>
+
+      <!-- 备注 -->
+      <view class="section note-section">
+        <textarea
+          class="note-input"
+          placeholder="添加备注"
+          value="{{task.note}}"
+          bindinput="onNoteInput"
+          bindblur="saveTask"
+          auto-height
+        />
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部信息 -->
+  <view class="footer">
+    <text class="created-info" wx:if="{{task.createdAt}}">
+      创建于 {{createdDateStr}}
+    </text>
+    <text class="completed-info" wx:if="{{task.completedAt}}">
+      · 完成于 {{completedDateStr}}
+    </text>
+  </view>
+
+  <!-- 日期选择器弹窗 -->
+  <view class="modal-mask {{showDatePicker ? 'visible' : ''}}" bindtap="hideDatePicker">
+    <view class="picker-content" catchtap="preventBubble">
+      <view class="picker-header">{{datePickerTitle}}</view>
+      <view class="picker-shortcuts">
+        <view class="picker-shortcut" bindtap="setDate" data-type="today">
+          <text class="shortcut-icon">☀</text>
+          <text class="shortcut-text">今天</text>
+          <text class="shortcut-date">{{todayStr}}</text>
+        </view>
+        <view class="picker-shortcut" bindtap="setDate" data-type="tomorrow">
+          <text class="shortcut-icon">📅</text>
+          <text class="shortcut-text">明天</text>
+          <text class="shortcut-date">{{tomorrowStr}}</text>
+        </view>
+        <view class="picker-shortcut" bindtap="setDate" data-type="nextweek">
+          <text class="shortcut-icon">📆</text>
+          <text class="shortcut-text">下周</text>
+          <text class="shortcut-date">{{nextWeekStr}}</text>
+        </view>
+      </view>
+      <picker mode="date" value="{{pickerDate}}" bindchange="onDatePickerChange">
+        <view class="picker-custom">选择具体日期</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 列表选择器弹窗 -->
+  <view class="modal-mask {{showListSelector ? 'visible' : ''}}" bindtap="hideListPicker">
+    <view class="picker-content" catchtap="preventBubble">
+      <view class="picker-header">移动到列表</view>
+      <scroll-view class="list-selector" scroll-y="true">
+        <view
+          class="list-option {{item.id === task.listId ? 'active' : ''}}"
+          wx:for="{{allLists}}"
+          wx:key="id"
+          bindtap="selectList"
+          data-id="{{item.id}}"
+        >
+          <view class="list-color" style="background-color: {{item.color}}"></view>
+          <text class="list-name">{{item.name}}</text>
+          <text class="list-check" wx:if="{{item.id === task.listId}}">✓</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 重复选择器弹窗 -->
+  <view class="modal-mask {{showRepeatSelector ? 'visible' : ''}}" bindtap="hideRepeatPicker">
+    <view class="picker-content" catchtap="preventBubble">
+      <view class="picker-header">重复</view>
+      <view class="repeat-options">
+        <view class="repeat-option" bindtap="setRepeat" data-type="daily">每天</view>
+        <view class="repeat-option" bindtap="setRepeat" data-type="weekday">工作日</view>
+        <view class="repeat-option" bindtap="setRepeat" data-type="weekly">每周</view>
+        <view class="repeat-option" bindtap="setRepeat" data-type="monthly">每月</view>
+        <view class="repeat-option" bindtap="setRepeat" data-type="yearly">每年</view>
+      </view>
+    </view>
+  </view>
+</view>
