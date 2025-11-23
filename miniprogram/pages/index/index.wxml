@@ -1,29 +1,120 @@
 <!--index.wxml-->
-<scroll-view class="scrollarea" scroll-y type="list">
-    <view style="display: flex; flex-direction: column; align-items: center; position: relative;">
-        
-        <view style="margin-top: 28.8rpx;width: 687.6rpx; padding: 28.8rpx; box-sizing: border-box; border-radius:21.6rpx; background-color: white;">
-            <text style="font-weight: 500; color: rgba(0,0,0,0.9); font-size: 27rpx;">消息推送</text>
-            <view style="font-weight: 400; color: rgba(0,0,0,0.3); font-size: 27rpx; margin-top: 14.5rpx; margin-bottom: 50rpx;">订阅小程序通知推送</view>
-            <div catch:tap="getToken" style="font-size: 25.2rpx; font-weight: 500; color: rgba(0,0,0,0.9); margin-top: 28.8rpx; margin-bottom: 20.8rpx; background-color: rgba(0,0,0,0.05); width: 144rpx; height: 57.6rpx; display: flex; justify-content: center; align-items: center; border-radius: 10.8rpx;">
-                获取Token
-            </div>
-        </view>
+<view class="ios-home">
+  <!-- 状态栏占位 -->
+  <view class="status-bar-placeholder"></view>
 
-        <view style="margin-top: 28.8rpx;width: 687.6rpx; padding: 28.8rpx; box-sizing: border-box; border-radius:21.6rpx; background-color: white;">
-            <text style="font-weight: 500; color: rgba(0,0,0,0.9); font-size: 27rpx;">备忘录</text>
-            <view style="font-weight: 400; color: rgba(0,0,0,0.3); font-size: 27rpx; margin-top: 14.5rpx; margin-bottom: 50rpx;">个人备忘录，远端私密记录，多设备查看</view>
-            <div catch:tap="showTodo" style="font-size: 25.2rpx; font-weight: 500; color: rgba(0,0,0,0.9); margin-top: 28.8rpx; margin-bottom: 20.8rpx; background-color: rgba(0,0,0,0.05); width: 144rpx; height: 57.6rpx; display: flex; justify-content: center; align-items: center; border-radius: 10.8rpx;">
-                添加记录
-            </div>
-        </view>
+  <!-- 顶部日期和问候 -->
+  <view class="header">
+    <text class="greeting">{{greeting}}</text>
+    <text class="date">{{dateStr}}</text>
+  </view>
 
-        <view style="margin-top: 28.8rpx;width: 687.6rpx; padding: 28.8rpx; box-sizing: border-box; border-radius:21.6rpx; background-color: white;">
-            <text style="font-weight: 500; color: rgba(0,0,0,0.9); font-size: 27rpx;">快递查询</text>
-            <view style="font-weight: 400; color: rgba(0,0,0,0.3); font-size: 27rpx; margin-top: 14.5rpx; margin-bottom: 50rpx;">查询所有快递</view>
-            <div catch:tap="showTodo" style="font-size: 25.2rpx; font-weight: 500; color: rgba(0,0,0,0.9); margin-top: 28.8rpx; margin-bottom: 20.8rpx; background-color: rgba(0,0,0,0.05); width: 144rpx; height: 57.6rpx; display: flex; justify-content: center; align-items: center; border-radius: 10.8rpx;">
-                查询
-            </div>
+  <!-- 搜索栏 -->
+  <view class="search-bar" bindtap="onSearchTap">
+    <text class="search-icon">🔍</text>
+    <text class="search-placeholder">搜索</text>
+  </view>
+
+  <!-- App 网格 -->
+  <scroll-view class="app-grid-scroll" scroll-y="true" enhanced="true" show-scrollbar="false">
+    <view class="app-grid">
+      <!-- 阅读 App -->
+      <view class="app-item" bindtap="openApp" data-app="reader">
+        <view class="app-icon reader-icon">
+          <view class="icon-inner">
+            <text class="icon-emoji">📚</text>
+          </view>
         </view>
+        <text class="app-name">阅读</text>
+      </view>
+
+      <!-- 任务 App -->
+      <view class="app-item" bindtap="openApp" data-app="todo">
+        <view class="app-icon todo-icon">
+          <view class="icon-inner">
+            <text class="icon-emoji">✓</text>
+          </view>
+        </view>
+        <text class="app-name">任务</text>
+      </view>
+
+      <!-- 备忘录 App -->
+      <view class="app-item" bindtap="openApp" data-app="notes">
+        <view class="app-icon notes-icon">
+          <view class="icon-inner">
+            <text class="icon-emoji">📝</text>
+          </view>
+        </view>
+        <text class="app-name">备忘录</text>
+      </view>
+
+      <!-- 快递 App -->
+      <view class="app-item" bindtap="openApp" data-app="express">
+        <view class="app-icon express-icon">
+          <view class="icon-inner">
+            <text class="icon-emoji">📦</text>
+          </view>
+        </view>
+        <text class="app-name">快递</text>
+      </view>
+
+      <!-- 设置 App -->
+      <view class="app-item" bindtap="openApp" data-app="settings">
+        <view class="app-icon settings-icon">
+          <view class="icon-inner">
+            <text class="icon-emoji">⚙️</text>
+          </view>
+        </view>
+        <text class="app-name">设置</text>
+      </view>
+
+      <!-- 更多 App 占位 -->
+      <view class="app-item" bindtap="openApp" data-app="more">
+        <view class="app-icon more-icon">
+          <view class="icon-inner">
+            <text class="icon-emoji">➕</text>
+          </view>
+        </view>
+        <text class="app-name">更多</text>
+      </view>
     </view>
-</scroll-view>
+
+    <!-- 小组件区域 -->
+    <view class="widgets-section">
+      <text class="section-title">小组件</text>
+
+      <!-- 阅读进度小组件 -->
+      <view class="widget reading-widget" bindtap="openApp" data-app="reader">
+        <view class="widget-header">
+          <view class="widget-icon">📚</view>
+          <text class="widget-title">阅读</text>
+        </view>
+        <view class="widget-content">
+          <text class="widget-stat">{{readingStats.booksCount}}</text>
+          <text class="widget-label">本书籍</text>
+        </view>
+        <view class="widget-footer">
+          <text class="widget-hint">继续阅读 →</text>
+        </view>
+      </view>
+
+      <!-- 任务小组件 -->
+      <view class="widget todo-widget" bindtap="openApp" data-app="todo">
+        <view class="widget-header">
+          <view class="widget-icon">✓</view>
+          <text class="widget-title">我的一天</text>
+        </view>
+        <view class="widget-content">
+          <text class="widget-stat">{{todoStats.todayCount}}</text>
+          <text class="widget-label">项任务</text>
+        </view>
+        <view class="widget-footer">
+          <text class="widget-hint">查看任务 →</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部 Dock 指示器 -->
+  <view class="home-indicator"></view>
+</view>

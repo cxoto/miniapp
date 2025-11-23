@@ -1,100 +1,120 @@
-// index.ts
-// 获取应用实例
+// index.ts - iOS Style Home
 const app = getApp<IAppOption>()
-const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
 
 Component({
-    data: {
-        motto: 'Hello World',
-        userInfo: {
-            avatarUrl: defaultAvatarUrl,
-            nickName: '',
-        },
-        hasUserInfo: false,
-        canIUseGetUserProfile: wx.canIUse('getUserProfile'),
-        canIUseNicknameComp: wx.canIUse('input.type.nickname'),
+  data: {
+    greeting: '下午好',
+    dateStr: '',
+    readingStats: {
+      booksCount: 0,
+      currentBook: '',
     },
-    methods: {
-        // 事件处理函数
-        toCases() {
-            wx.navigateTo({
-                url: '../cases/cases',
-            })
-        },
-        // 获取Token函数
-        getToken(): void {
-            wx.getUserProfile({
-                desc: '获取您的个人信息', // 说明获取个人信息的原因
-                success: (res) => {
-                    const userInfo = res.userInfo; // 获取用户个人信息
-                    console.log('用户信息:', userInfo);
-
-                    // 在这里生成Token，可以根据业务需求生成
-                    const token = this.generateToken(userInfo); // 生成Token
-                    console.log('生成的Token:', token);
-
-                    // 存储token
-                    wx.setStorageSync('userToken', token);
-
-                    // 显示提示框，告诉用户Token已获取
-                    wx.showToast({
-                        title: 'Token已获取',
-                        icon: 'success',
-                        duration: 2000,
-                    });
-                },
-                fail: (err) => {
-                    console.error('获取用户信息失败:', err);
-                    wx.showToast({
-                        title: '获取信息失败',
-                        icon: 'none',
-                        duration: 2000,
-                    });
-                },
-            });
-        },
-
-        getTokenn() {
-            wx.login({
-                success (res) {
-                  if (res.code) {
-                    console.log('获取code成功！' + res.code)
-                    //发起网络请求
-                    wx.request({
-                      url: 'https://example.com/onLogin',
-                      data: {
-                        code: res.code
-                      }
-                    })
-                  } else {
-                    wx.showToast({
-                        title: '获取信息失败',
-                        icon: 'none',
-                        duration: 2000,
-                    });
-                  }
-                }
-              })
-        },
-
-        // 生成Token的简单逻辑
-        generateToken(userInfo: WechatMiniprogram.UserInfo): string {
-            // 这里简单使用用户名加时间戳生成token，实际中可以用更安全的生成方式
-            return `${userInfo.nickName}-${Date.now()}`;
-        },
-        showTodo(): void {
-            wx.showModal({
-                title: '提示',
-                content: '功能开发中',
-                showCancel: false,  // 是否显示取消按钮
-                confirmText: '确定',  // 确定按钮的文本
-                confirmColor: '#3CC51F',  // 确定按钮的颜色
-                success: (res: WechatMiniprogram.ShowModalSuccessCallbackResult) => {
-                    if (res.confirm) {
-                        console.log('用户点击确定');
-                    }
-                },
-            });
-        },
+    todoStats: {
+      todayCount: 0,
+      importantCount: 0,
     },
-})
+  },
+
+  lifetimes: {
+    attached() {
+      this.updateGreeting();
+      this.updateDate();
+      this.loadStats();
+    },
+  },
+
+  pageLifetimes: {
+    show() {
+      this.loadStats();
+    },
+  },
+
+  methods: {
+    // 更新问候语
+    updateGreeting() {
+      const hour = new Date().getHours();
+      let greeting = '你好';
+
+      if (hour >= 5 && hour < 12) {
+        greeting = '早上好';
+      } else if (hour >= 12 && hour < 14) {
+        greeting = '中午好';
+      } else if (hour >= 14 && hour < 18) {
+        greeting = '下午好';
+      } else if (hour >= 18 && hour < 22) {
+        greeting = '晚上好';
+      } else {
+        greeting = '夜深了';
+      }
+
+      this.setData({ greeting });
+    },
+
+    // 更新日期
+    updateDate() {
+      const now = new Date();
+      const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+      const dateStr = `${now.getMonth() + 1}月${now.getDate()}日 ${weekDays[now.getDay()]}`;
+      this.setData({ dateStr });
+    },
+
+    // 加载统计数据
+    loadStats() {
+      // 阅读统计
+      const books = wx.getStorageSync('bookshelf') || [];
+      const readingStats = {
+        booksCount: books.length,
+        currentBook: books.length > 0 ? books[0].title : '',
+      };
+
+      // 任务统计
+      const tasks = wx.getStorageSync('todoTasks') || [];
+      const todayTasks = tasks.filter((t: { myDay: boolean; completed: boolean }) => t.myDay && !t.completed);
+      const importantTasks = tasks.filter((t: { important: boolean; completed: boolean }) => t.important && !t.completed);
+
+      const todoStats = {
+        todayCount: todayTasks.length,
+        importantCount: importantTasks.length,
+      };
+
+      this.setData({ readingStats, todoStats });
+    },
+
+    // 打开 App
+    openApp(e: WechatMiniprogram.TouchEvent) {
+      const appName = e.currentTarget.dataset.app;
+
+      switch (appName) {
+        case 'reader':
+          wx.switchTab({
+            url: '/pages/reader/bookshelf/bookshelf',
+          });
+          break;
+        case 'todo':
+          wx.switchTab({
+            url: '/pages/todo/lists/lists',
+          });
+          break;
+        case 'notes':
+        case 'express':
+        case 'settings':
+        case 'more':
+          wx.showToast({
+            title: '功能开发中',
+            icon: 'none',
+          });
+          break;
+        default:
+          break;
+      }
+    },
+
+    // 搜索点击
+    onSearchTap() {
+      wx.showToast({
+        title: '搜索功能开发中',
+        icon: 'none',
+      });
+    },
+  },
+});
