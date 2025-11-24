@@ -205,7 +205,7 @@
       </view>
       <view class="modal-body">
         <input
-          class="list-name-input"
+          class="list-name-input {{showNewList ? 'visible' : ''}}"
           placeholder="输入列表名称"
           value="{{newListName}}"
           bindinput="onNewListNameInput"

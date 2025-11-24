@@ -1,4 +1,5 @@
 // pages/reader/reading/reading.ts
+// 大文件分片加载版本
 
 interface Book {
   id: string;
@@ -12,6 +13,7 @@ interface Book {
   category: 'reading' | 'finished' | 'all';
   totalChapters?: number;
   currentChapter?: number;
+  fileSize?: number;
 }
 
 interface Chapter {
@@ -49,11 +51,16 @@ const BG_THEMES: Record<string, { bg: string; text: string }> = {
   dark: { bg: '#1a1a1a', text: '#999999' },
 };
 
+// 每次加载的字符数（约50KB，安全范围内）
+const CHUNK_SIZE = 50000;
+// 章节扫描时每次读取的大小
+const SCAN_CHUNK_SIZE = 100000;
+
 Page({
   data: {
     bookId: '',
     bookInfo: {} as Book,
-    fullContent: '',
+    fileSize: 0,
     currentContent: '',
     chapters: [] as Chapter[],
     currentChapterIndex: 0,
@@ -72,6 +79,7 @@ Page({
     isBookmarked: false,
 
     isLoading: true,
+    loadingText: '加载中...',
     statusBarHeight: 20,
 
     settings: {
@@ -90,9 +98,14 @@ Page({
     touchStartTime: 0,
   },
 
+  // 文件系统管理器
+  fs: null as WechatMiniprogram.FileSystemManager | null,
+
   onLoad(options: Record<string, string>) {
     const bookId = options.id || '';
     this.setData({ bookId });
+
+    this.fs = wx.getFileSystemManager();
 
     // 获取状态栏高度
     const systemInfo = wx.getSystemInfoSync();
@@ -109,12 +122,10 @@ Page({
   },
 
   onUnload() {
-    // 保存阅读进度
     this.saveProgress();
   },
 
   onHide() {
-    // 保存阅读进度
     this.saveProgress();
   },
 
@@ -137,56 +148,295 @@ Page({
     const book = books.find((b: Book) => b.id === bookId);
 
     if (!book) {
-      wx.showToast({
-        title: '书籍不存在',
-        icon: 'error',
-      });
-      setTimeout(() => {
-        wx.navigateBack();
-      }, 1500);
+      wx.showToast({ title: '书籍不存在', icon: 'error' });
+      setTimeout(() => wx.navigateBack(), 1500);
       return;
     }
 
-    this.setData({ bookInfo: book });
+    this.setData({ bookInfo: book, loadingText: '正在分析文件...' });
 
-    // 读取文件内容
-    const fs = wx.getFileSystemManager();
-    fs.readFile({
+    // 获取文件大小
+    try {
+      const stat = this.fs!.statSync(book.filePath);
+      const fileSize = stat.size;
+      this.setData({ fileSize });
+
+      console.log(`文件大小: ${(fileSize / 1024 / 1024).toFixed(2)} MB`);
+
+      // 根据文件大小决定加载策略
+      if (fileSize < 500 * 1024) {
+        // 小于500KB，直接全部加载
+        this.loadSmallFile(book);
+      } else {
+        // 大文件，分片加载
+        this.loadLargeFile(book, fileSize);
+      }
+    } catch (err) {
+      console.error('获取文件信息失败:', err);
+      wx.showToast({ title: '文件读取失败', icon: 'error' });
+      this.setData({ isLoading: false });
+    }
+  },
+
+  // 加载小文件（原有逻辑）
+  loadSmallFile(book: Book) {
+    this.fs!.readFile({
       filePath: book.filePath,
       encoding: 'utf-8',
       success: (res) => {
         const content = res.data as string;
-        this.setData({ fullContent: content });
+        const chapters = this.parseChaptersFromContent(content);
 
-        // 解析章节
-        this.parseChapters(content);
+        // 存储完整内容用于小文件
+        this.fullContent = content;
 
-        // 恢复上次阅读位置
+        this.setData({ chapters });
         this.restoreReadingPosition(book.lastReadPosition || 0);
-
         this.setData({ isLoading: false });
       },
       fail: (err) => {
         console.error('读取文件失败:', err);
-        wx.showToast({
-          title: '文件读取失败',
-          icon: 'error',
-        });
+        wx.showToast({ title: '文件读取失败', icon: 'error' });
         this.setData({ isLoading: false });
       },
     });
   },
 
-  // 解析章节
-  parseChapters(content: string) {
-    const chapters: Chapter[] = [];
+  // 完整内容（仅小文件使用）
+  fullContent: '',
 
-    // 常见的章节标题正则
+  // 加载大文件
+  async loadLargeFile(book: Book, fileSize: number) {
+    this.setData({ loadingText: '正在分析章节...' });
+
+    try {
+      // 第一步：扫描文件建立章节索引
+      const chapters = await this.scanChapters(book.filePath, fileSize);
+      this.setData({ chapters });
+
+      // 第二步：恢复阅读位置
+      const lastPosition = book.lastReadPosition || 0;
+      await this.loadContentAtPosition(book.filePath, lastPosition, chapters);
+
+      this.setData({ isLoading: false });
+    } catch (err) {
+      console.error('加载大文件失败:', err);
+      wx.showToast({ title: '文件加载失败', icon: 'error' });
+      this.setData({ isLoading: false });
+    }
+  },
+
+  // 扫描章节（分片扫描）
+  scanChapters(filePath: string, fileSize: number): Promise<Chapter[]> {
+    return new Promise((resolve) => {
+      const chapters: Chapter[] = [];
+      const chapterPatterns = [
+        /^第[一二三四五六七八九十百千万零\d]+[章节回集卷部篇]/,
+        /^Chapter\s*\d+/i,
+        /^卷[一二三四五六七八九十\d]+/,
+      ];
+
+      let position = 0;
+      let chapterIndex = 0;
+      let lastChapterEnd = 0;
+
+      const scanNextChunk = () => {
+        if (position >= fileSize) {
+          // 扫描完成，处理最后一个章节
+          if (chapters.length > 0) {
+            chapters[chapters.length - 1].endPosition = fileSize;
+          } else {
+            // 没有找到章节，创建默认章节
+            chapters.push({
+              index: 0,
+              title: this.data.bookInfo.title || '正文',
+              startPosition: 0,
+              endPosition: fileSize,
+            });
+          }
+          resolve(chapters);
+          return;
+        }
+
+        const readSize = Math.min(SCAN_CHUNK_SIZE, fileSize - position);
+
+        this.fs!.read({
+          filePath: filePath,
+          position: position,
+          length: readSize,
+          encoding: 'utf-8',
+          success: (res) => {
+            const chunk = res.data as string;
+            const lines = chunk.split('\n');
+
+            let offset = 0;
+            for (const line of lines) {
+              const trimmedLine = line.trim();
+
+              for (const pattern of chapterPatterns) {
+                if (pattern.test(trimmedLine)) {
+                  // 找到新章节
+                  const chapterStart = position + offset;
+
+                  // 更新上一章节的结束位置
+                  if (chapters.length > 0) {
+                    chapters[chapters.length - 1].endPosition = chapterStart;
+                  }
+
+                  chapters.push({
+                    index: chapterIndex++,
+                    title: trimmedLine.slice(0, 50),
+                    startPosition: chapterStart,
+                    endPosition: fileSize, // 临时值
+                  });
+
+                  lastChapterEnd = chapterStart;
+                  break;
+                }
+              }
+
+              offset += line.length + 1; // +1 for newline
+            }
+
+            // 更新进度
+            const progress = Math.floor((position / fileSize) * 100);
+            this.setData({ loadingText: `分析章节中 ${progress}%` });
+
+            position += readSize;
+
+            // 避免在chunk边界处重复扫描，回退一点
+            if (position < fileSize) {
+              position -= 200;
+            }
+
+            // 继续扫描下一块
+            setTimeout(scanNextChunk, 0);
+          },
+          fail: (err) => {
+            console.error('扫描文件失败:', err);
+            // 创建默认章节
+            chapters.push({
+              index: 0,
+              title: this.data.bookInfo.title || '正文',
+              startPosition: 0,
+              endPosition: fileSize,
+            });
+            resolve(chapters);
+          },
+        });
+      };
+
+      // 如果文件开头有内容但没有章节标题，添加"前言"
+      this.fs!.read({
+        filePath: filePath,
+        position: 0,
+        length: Math.min(1000, fileSize),
+        encoding: 'utf-8',
+        success: (res) => {
+          const firstChunk = res.data as string;
+          const firstLine = firstChunk.split('\n')[0].trim();
+
+          let hasChapterAtStart = false;
+          for (const pattern of chapterPatterns) {
+            if (pattern.test(firstLine)) {
+              hasChapterAtStart = true;
+              break;
+            }
+          }
+
+          if (!hasChapterAtStart && firstChunk.trim().length > 0) {
+            chapters.push({
+              index: chapterIndex++,
+              title: '前言',
+              startPosition: 0,
+              endPosition: fileSize,
+            });
+          }
+
+          scanNextChunk();
+        },
+        fail: () => {
+          scanNextChunk();
+        },
+      });
+    });
+  },
+
+  // 在指定位置加载内容
+  async loadContentAtPosition(filePath: string, position: number, chapters: Chapter[]) {
+    // 找到对应的章节
+    let chapterIndex = 0;
+    for (let i = 0; i < chapters.length; i++) {
+      if (position >= chapters[i].startPosition && position < chapters[i].endPosition) {
+        chapterIndex = i;
+        break;
+      }
+    }
+
+    await this.loadChapter(filePath, chapterIndex, chapters);
+  },
+
+  // 加载指定章节
+  loadChapter(filePath: string, chapterIndex: number, chapters?: Chapter[]): Promise<void> {
+    const chapterList = chapters || this.data.chapters;
+    const chapter = chapterList[chapterIndex];
+
+    if (!chapter) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      const startPos = chapter.startPosition;
+      const endPos = chapter.endPosition;
+      const length = Math.min(endPos - startPos, CHUNK_SIZE * 4); // 最多加载200KB
+
+      this.fs!.read({
+        filePath: filePath,
+        position: startPos,
+        length: length,
+        encoding: 'utf-8',
+        success: (res) => {
+          let content = res.data as string;
+
+          // 如果内容被截断，在最后一个完整段落处截断
+          if (length < endPos - startPos) {
+            const lastNewline = content.lastIndexOf('\n\n');
+            if (lastNewline > content.length * 0.8) {
+              content = content.slice(0, lastNewline) + '\n\n[...]';
+            }
+          }
+
+          const progress = (startPos / this.data.fileSize) * 100;
+
+          this.setData({
+            currentContent: content,
+            currentChapter: chapter,
+            currentChapterIndex: chapterIndex,
+            currentPosition: startPos,
+            progress: Math.min(progress, 100),
+            currentPage: chapterIndex + 1,
+            totalPages: chapterList.length,
+          });
+
+          this.checkBookmarkStatus(startPos);
+          resolve();
+        },
+        fail: (err) => {
+          console.error('加载章节失败:', err);
+          wx.showToast({ title: '加载失败', icon: 'error' });
+          resolve();
+        },
+      });
+    });
+  },
+
+  // 从内容解析章节（小文件用）
+  parseChaptersFromContent(content: string): Chapter[] {
+    const chapters: Chapter[] = [];
     const chapterPatterns = [
       /^第[一二三四五六七八九十百千万零\d]+[章节回集卷部篇]/gm,
       /^Chapter\s*\d+/gim,
       /^卷[一二三四五六七八九十\d]+/gm,
-      /^\d+[.、]\s*.+$/gm,
     ];
 
     let matches: { index: number; title: string }[] = [];
@@ -195,7 +445,6 @@ Page({
       let match;
       const regex = new RegExp(pattern.source, pattern.flags);
       while ((match = regex.exec(content)) !== null) {
-        // 获取该行完整内容作为标题
         const lineStart = match.index;
         let lineEnd = content.indexOf('\n', lineStart);
         if (lineEnd === -1) lineEnd = content.length;
@@ -203,19 +452,17 @@ Page({
 
         matches.push({
           index: match.index,
-          title: title.slice(0, 50), // 限制标题长度
+          title: title.slice(0, 50),
         });
       }
     }
 
-    // 去重并排序
     matches = matches
       .filter((item, index, self) =>
         index === self.findIndex(t => t.index === item.index)
       )
       .sort((a, b) => a.index - b.index);
 
-    // 如果没有找到章节，创建一个默认章节
     if (matches.length === 0) {
       chapters.push({
         index: 0,
@@ -224,7 +471,6 @@ Page({
         endPosition: content.length,
       });
     } else {
-      // 创建章节对象
       matches.forEach((match, idx) => {
         chapters.push({
           index: idx,
@@ -234,7 +480,6 @@ Page({
         });
       });
 
-      // 如果第一章不是从开头开始，添加一个前言章节
       if (matches[0].index > 100) {
         chapters.unshift({
           index: -1,
@@ -242,53 +487,38 @@ Page({
           startPosition: 0,
           endPosition: matches[0].index,
         });
-        // 重新编号
-        chapters.forEach((ch, idx) => {
-          ch.index = idx;
-        });
+        chapters.forEach((ch, idx) => { ch.index = idx; });
       }
     }
 
-    this.setData({ chapters });
+    return chapters;
   },
 
-  // 恢复阅读位置
+  // 恢复阅读位置（小文件用）
   restoreReadingPosition(position: number) {
-    const { chapters, fullContent } = this.data;
+    const { chapters } = this.data;
 
-    // 找到对应章节
     let chapterIndex = 0;
     for (let i = 0; i < chapters.length; i++) {
-      if (position >= chapters[i].startPosition &&
-          position < chapters[i].endPosition) {
+      if (position >= chapters[i].startPosition && position < chapters[i].endPosition) {
         chapterIndex = i;
         break;
       }
     }
 
-    this.setData({
-      currentChapterIndex: chapterIndex,
-      currentChapter: chapters[chapterIndex] || { title: '', index: 0 },
-      currentPosition: position,
-    });
-
-    // 显示当前内容
     this.displayContent(chapterIndex, position);
   },
 
-  // 显示内容
+  // 显示内容（小文件用）
   displayContent(chapterIndex: number, position?: number) {
-    const { chapters, fullContent } = this.data;
+    const { chapters } = this.data;
     const chapter = chapters[chapterIndex];
 
     if (!chapter) return;
 
-    // 获取章节内容
-    const chapterContent = fullContent.slice(chapter.startPosition, chapter.endPosition);
-
-    // 计算进度
+    const chapterContent = this.fullContent.slice(chapter.startPosition, chapter.endPosition);
     const currentPos = position || chapter.startPosition;
-    const progress = (currentPos / fullContent.length) * 100;
+    const progress = (currentPos / this.fullContent.length) * 100;
 
     this.setData({
       currentContent: chapterContent,
@@ -300,7 +530,6 @@ Page({
       totalPages: chapters.length,
     });
 
-    // 检查当前位置是否有书签
     this.checkBookmarkStatus(currentPos);
   },
 
@@ -317,7 +546,6 @@ Page({
       books[index].lastReadTime = Date.now();
       books[index].progress = Math.floor(progress);
 
-      // 如果进度达到95%以上，标记为已读完
       if (progress >= 95) {
         books[index].category = 'finished';
       }
@@ -330,12 +558,8 @@ Page({
   toggleMenu() {
     const { showMenu, showCatalogPanel, showSettingsPanel } = this.data;
 
-    // 如果有其他面板打开，先关闭
     if (showCatalogPanel || showSettingsPanel) {
-      this.setData({
-        showCatalogPanel: false,
-        showSettingsPanel: false,
-      });
+      this.setData({ showCatalogPanel: false, showSettingsPanel: false });
       return;
     }
 
@@ -347,19 +571,65 @@ Page({
     wx.navigateBack();
   },
 
+  // 跳转到章节
+  jumpToChapter(e: WechatMiniprogram.TouchEvent) {
+    const index = e.currentTarget.dataset.index;
+    const { bookInfo, fileSize } = this.data;
+
+    this.setData({ showCatalogPanel: false, isLoading: true, loadingText: '加载中...' });
+
+    if (fileSize < 500 * 1024) {
+      // 小文件
+      this.displayContent(index);
+      this.setData({ isLoading: false });
+    } else {
+      // 大文件
+      this.loadChapter(bookInfo.filePath, index).then(() => {
+        this.setData({ isLoading: false });
+      });
+    }
+  },
+
+  // 进度变化
+  onProgressChange(e: WechatMiniprogram.SliderChange) {
+    const progress = e.detail.value;
+    const { fileSize, chapters, bookInfo } = this.data;
+    const position = Math.floor((progress / 100) * fileSize);
+
+    // 找到对应章节
+    let chapterIndex = 0;
+    for (let i = 0; i < chapters.length; i++) {
+      if (position >= chapters[i].startPosition && position < chapters[i].endPosition) {
+        chapterIndex = i;
+        break;
+      }
+    }
+
+    this.setData({ isLoading: true, loadingText: '加载中...' });
+
+    if (fileSize < 500 * 1024) {
+      this.displayContent(chapterIndex, position);
+      this.setData({ isLoading: false });
+    } else {
+      this.loadChapter(bookInfo.filePath, chapterIndex).then(() => {
+        this.setData({ isLoading: false });
+      });
+    }
+  },
+
+  // ========== 以下是不变的功能 ==========
+
   // 切换书签
   toggleBookmark() {
-    const { bookId, currentPosition, currentChapter, fullContent, bookmarks, isBookmarked } = this.data;
+    const { bookId, currentPosition, currentChapter, bookmarks, isBookmarked, currentContent } = this.data;
 
     if (isBookmarked) {
-      // 删除书签
       const newBookmarks = bookmarks.filter(b => Math.abs(b.position - currentPosition) > 100);
       this.setData({ bookmarks: newBookmarks, isBookmarked: false });
       this.saveBookmarks();
       wx.showToast({ title: '已取消书签', icon: 'none' });
     } else {
-      // 添加书签
-      const content = fullContent.slice(currentPosition, currentPosition + 50).trim();
+      const content = currentContent.slice(0, 50).trim();
       const now = new Date();
       const newBookmark: Bookmark = {
         id: Date.now().toString(),
@@ -379,14 +649,12 @@ Page({
     }
   },
 
-  // 加载书签
   loadBookmarks(bookId: string) {
     const allBookmarks = wx.getStorageSync('bookmarks') || {};
     const bookmarks = allBookmarks[bookId] || [];
     this.setData({ bookmarks });
   },
 
-  // 保存书签
   saveBookmarks() {
     const { bookId, bookmarks } = this.data;
     const allBookmarks = wx.getStorageSync('bookmarks') || {};
@@ -394,68 +662,38 @@ Page({
     wx.setStorageSync('bookmarks', allBookmarks);
   },
 
-  // 检查书签状态
   checkBookmarkStatus(position: number) {
     const { bookmarks } = this.data;
     const isBookmarked = bookmarks.some(b => Math.abs(b.position - position) < 100);
     this.setData({ isBookmarked });
   },
 
-  // 显示目录
   showCatalog() {
-    this.setData({
-      showCatalogPanel: true,
-      showMenu: false,
-      catalogTab: 'chapters',
-    });
+    this.setData({ showCatalogPanel: true, showMenu: false, catalogTab: 'chapters' });
   },
 
-  // 关闭目录
   closeCatalog() {
     this.setData({ showCatalogPanel: false });
   },
 
-  // 显示书签列表
   showBookmarks() {
-    this.setData({
-      showCatalogPanel: true,
-      showMenu: false,
-      catalogTab: 'bookmarks',
-    });
+    this.setData({ showCatalogPanel: true, showMenu: false, catalogTab: 'bookmarks' });
   },
 
-  // 切换目录标签
   switchCatalogTab(e: WechatMiniprogram.TouchEvent) {
     const tab = e.currentTarget.dataset.tab;
     this.setData({ catalogTab: tab });
   },
 
-  // 跳转到章节
-  jumpToChapter(e: WechatMiniprogram.TouchEvent) {
-    const index = e.currentTarget.dataset.index;
-    this.displayContent(index);
-    this.setData({ showCatalogPanel: false });
-  },
-
-  // 跳转到书签
   jumpToBookmark(e: WechatMiniprogram.TouchEvent) {
     const index = e.currentTarget.dataset.index;
     const bookmark = this.data.bookmarks[index];
     if (bookmark) {
-      this.restoreReadingPosition(bookmark.position);
       this.setData({ showCatalogPanel: false });
+      this.jumpToChapter({ currentTarget: { dataset: { index: bookmark.chapterIndex } } } as WechatMiniprogram.TouchEvent);
     }
   },
 
-  // 进度变化
-  onProgressChange(e: WechatMiniprogram.SliderChange) {
-    const progress = e.detail.value;
-    const { fullContent } = this.data;
-    const position = Math.floor((progress / 100) * fullContent.length);
-    this.restoreReadingPosition(position);
-  },
-
-  // 切换夜间模式
   toggleNightMode() {
     const { settings } = this.data;
     const isNightMode = !settings.isNightMode;
@@ -472,20 +710,14 @@ Page({
     this.saveSettings();
   },
 
-  // 显示设置
   showSettings() {
-    this.setData({
-      showSettingsPanel: true,
-      showMenu: false,
-    });
+    this.setData({ showSettingsPanel: true, showMenu: false });
   },
 
-  // 关闭设置
   closeSettings() {
     this.setData({ showSettingsPanel: false });
   },
 
-  // 减小字体
   decreaseFontSize() {
     const { settings } = this.data;
     if (settings.fontSize > 24) {
@@ -495,7 +727,6 @@ Page({
     }
   },
 
-  // 增大字体
   increaseFontSize() {
     const { settings } = this.data;
     if (settings.fontSize < 48) {
@@ -505,7 +736,6 @@ Page({
     }
   },
 
-  // 设置行高
   setLineHeight(e: WechatMiniprogram.TouchEvent) {
     const value = parseFloat(e.currentTarget.dataset.value);
     const { settings } = this.data;
@@ -514,7 +744,6 @@ Page({
     this.saveSettings();
   },
 
-  // 设置背景主题
   setBgTheme(e: WechatMiniprogram.TouchEvent) {
     const theme = e.currentTarget.dataset.theme as keyof typeof BG_THEMES;
     const { settings } = this.data;
@@ -528,7 +757,6 @@ Page({
     this.saveSettings();
   },
 
-  // 设置翻页模式
   setPageMode(e: WechatMiniprogram.TouchEvent) {
     const mode = e.currentTarget.dataset.mode;
     const { settings } = this.data;
@@ -537,12 +765,8 @@ Page({
     this.saveSettings();
   },
 
-  // 阻止冒泡
-  preventBubble() {
-    // 空函数
-  },
+  preventBubble() {},
 
-  // 触摸开始
   onTouchStart(e: WechatMiniprogram.TouchEvent) {
     this.setData({
       touchStartX: e.touches[0].clientX,
@@ -551,28 +775,36 @@ Page({
     });
   },
 
-  // 触摸移动
-  onTouchMove(_e: WechatMiniprogram.TouchEvent) {
-    // 可用于实现滑动翻页效果
-  },
+  onTouchMove(_e: WechatMiniprogram.TouchEvent) {},
 
-  // 触摸结束
   onTouchEnd(e: WechatMiniprogram.TouchEvent) {
-    const { touchStartX, touchStartY, touchStartTime, settings, currentChapterIndex, chapters } = this.data;
+    const { touchStartX, touchStartY, touchStartTime, settings, currentChapterIndex, chapters, bookInfo, fileSize } = this.data;
     const endX = e.changedTouches[0].clientX;
     const endY = e.changedTouches[0].clientY;
     const deltaX = endX - touchStartX;
     const deltaY = endY - touchStartY;
     const deltaTime = Date.now() - touchStartTime;
 
-    // 滑动翻页模式
     if (settings.pageMode === 'slide' && deltaTime < 300 && Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      let newIndex = currentChapterIndex;
+
       if (deltaX > 0 && currentChapterIndex > 0) {
-        // 向右滑动 - 上一章
-        this.displayContent(currentChapterIndex - 1);
+        newIndex = currentChapterIndex - 1;
       } else if (deltaX < 0 && currentChapterIndex < chapters.length - 1) {
-        // 向左滑动 - 下一章
-        this.displayContent(currentChapterIndex + 1);
+        newIndex = currentChapterIndex + 1;
+      }
+
+      if (newIndex !== currentChapterIndex) {
+        this.setData({ isLoading: true, loadingText: '加载中...' });
+
+        if (fileSize < 500 * 1024) {
+          this.displayContent(newIndex);
+          this.setData({ isLoading: false });
+        } else {
+          this.loadChapter(bookInfo.filePath, newIndex).then(() => {
+            this.setData({ isLoading: false });
+          });
+        }
       }
     }
   },
