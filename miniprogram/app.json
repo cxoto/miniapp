@@ -22,19 +22,19 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "images/house.png",
+        "iconPath": "images/house1.png",
         "selectedIconPath": "images/house1.png"
       },
       {
         "pagePath": "pages/reader/bookshelf/bookshelf",
         "text": "阅读",
-        "iconPath": "images/book.png",
+        "iconPath": "images/book1.png",
         "selectedIconPath": "images/book1.png"
       },
       {
         "pagePath": "pages/todo/lists/lists",
         "text": "任务",
-        "iconPath": "images/todo.png",
+        "iconPath": "images/todo1.png",
         "selectedIconPath": "images/todo1.png"
       },
       {

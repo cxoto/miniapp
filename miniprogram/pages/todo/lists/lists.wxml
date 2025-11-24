@@ -198,14 +198,14 @@
   </view>
 
   <!-- 新建列表弹窗 -->
-  <view class="modal-mask {{showNewList ? 'visible' : ''}}" bindtap="hideNewListModal">
+  <view class="modal-mask {{showNewList ? 'visible' : ''}}" bindtap="hideNewListModal" wx:if="{{showNewList}}">
     <view class="modal-content" catchtap="preventBubble">
       <view class="modal-header">
         <text class="modal-title">新建列表</text>
       </view>
       <view class="modal-body">
         <input
-          class="list-name-input {{showNewList ? 'visible' : ''}}"
+          class="list-name-input"
           placeholder="输入列表名称"
           value="{{newListName}}"
           bindinput="onNewListNameInput"
@@ -230,7 +230,7 @@
   </view>
 
   <!-- 日期选择器 -->
-  <view class="modal-mask {{showDatePickerModal ? 'visible' : ''}}" bindtap="hideDatePicker">
+  <view class="modal-mask {{showDatePickerModal ? 'visible' : ''}}" bindtap="hideDatePicker" wx:if="{{showDatePickerModal}}">
     <view class="date-picker-content" catchtap="preventBubble">
       <view class="date-header">选择日期</view>
       <view class="date-shortcuts">
