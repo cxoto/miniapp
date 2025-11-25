@@ -1,0 +1,224 @@
+.online-reader {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+/* 加载状态 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 章节内容 */
+.reader-content {
+  padding: 40rpx;
+}
+
+.chapter-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 60rpx;
+  line-height: 1.6;
+}
+
+.chapter-text {
+  line-height: 2;
+  text-align: justify;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-bottom: 80rpx;
+}
+
+/* 导航按钮 */
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  margin: 60rpx 0;
+  gap: 20rpx;
+}
+
+.nav-btn {
+  flex: 1;
+  padding: 24rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  transition: all 0.3s;
+}
+
+.nav-btn.disabled {
+  background: #ddd;
+  color: #999;
+}
+
+.nav-btn:active:not(.disabled) {
+  transform: scale(0.98);
+}
+
+.catalog-btn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* 阅读设置 */
+.reader-settings {
+  margin-top: 60rpx;
+  padding: 30rpx;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 16rpx;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.setting-row:last-child {
+  margin-bottom: 0;
+}
+
+.setting-label {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.font-controls {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.control-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.font-size-display {
+  font-size: 28rpx;
+  min-width: 60rpx;
+  text-align: center;
+}
+
+.color-options {
+  display: flex;
+  gap: 20rpx;
+}
+
+.color-option {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 目录弹窗 */
+.catalog-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.catalog-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.catalog-content {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 70%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.catalog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.catalog-title {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.catalog-close {
+  font-size: 40rpx;
+  color: #999;
+  padding: 10rpx;
+}
+
+.catalog-list {
+  flex: 1;
+  padding: 20rpx 0;
+}
+
+.catalog-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+  transition: all 0.3s;
+}
+
+.catalog-item.active {
+  background-color: #f0f0ff;
+  border-left: 6rpx solid #667eea;
+}
+
+.catalog-item:active {
+  background-color: #f5f5f5;
+}
+
+.chapter-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.catalog-item.active .chapter-name {
+  color: #667eea;
+  font-weight: bold;
+}
+
+.chapter-info {
+  font-size: 22rpx;
+  color: #999;
+}

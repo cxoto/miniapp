@@ -1,0 +1,87 @@
+<view class="book-search">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrapper">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="搜索书名、作者"
+        value="{{keyword}}"
+        bindinput="onInput"
+        confirm-type="search"
+        bindconfirm="onSearch"
+      />
+      <text class="clear-icon" wx:if="{{keyword}}" bindtap="onClear">✕</text>
+    </view>
+    <view class="search-btn" bindtap="onSearch">
+      <text>搜索</text>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{searched}}">
+    <!-- 结果统计 -->
+    <view class="result-count" wx:if="{{total > 0}}">
+      <text>找到 {{total}} 个结果</text>
+    </view>
+
+    <!-- 书籍列表 -->
+    <view class="book-list" wx:if="{{searchResults.length > 0}}">
+      <view
+        class="book-item"
+        wx:for="{{searchResults}}"
+        wx:key="bookId"
+      >
+        <view class="book-main" bindtap="viewBook" data-bookid="{{item.bookId}}">
+          <image class="book-cover" src="{{item.coverUrl}}" mode="aspectFill" />
+          <view class="book-info">
+            <text class="book-name">{{item.bookName}}</text>
+            <text class="book-author">作者: {{item.author}}</text>
+            <text class="book-desc">{{item.description}}</text>
+            <view class="book-meta">
+              <text class="word-count">{{item.wordCount}}字</text>
+              <text class="source">来源: {{item.source}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="book-actions">
+          <view
+            class="add-btn {{item.isInBookshelf ? 'added' : ''}}"
+            bindtap="addToBookshelf"
+            data-bookid="{{item.bookId}}"
+          >
+            <text>{{item.isInBookshelf ? '已添加' : '+ 书架'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空结果 -->
+    <view class="empty-result" wx:if="{{searchResults.length === 0 && !searching}}">
+      <text class="empty-icon">😢</text>
+      <text class="empty-text">没有找到相关书籍</text>
+      <text class="empty-hint">换个关键词试试吧</text>
+    </view>
+  </view>
+
+  <!-- 初始状态 -->
+  <view class="init-state" wx:if="{{!searched && !searching}}">
+    <text class="init-icon">📖</text>
+    <text class="init-text">搜索你喜欢的书籍</text>
+    <view class="hot-keywords">
+      <text class="hot-title">热门搜索:</text>
+      <view class="keyword-list">
+        <text class="keyword" bindtap="onInput" data-value="三体">三体</text>
+        <text class="keyword" bindtap="onInput" data-value="刘慈欣">刘慈欣</text>
+        <text class="keyword" bindtap="onInput" data-value="明朝">明朝</text>
+        <text class="keyword" bindtap="onInput" data-value="余华">余华</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索中状态 -->
+  <view class="searching-state" wx:if="{{searching}}">
+    <text>搜索中...</text>
+  </view>
+</view>

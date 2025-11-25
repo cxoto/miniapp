@@ -6,7 +6,10 @@
     "pages/todo/lists/lists",
     "pages/todo/detail/detail",
     "pages/apps/main",
-    "pages/contact/contact"
+    "pages/contact/contact",
+    "pages/online/bookshelf/bookshelf",
+    "pages/online/search/search",
+    "pages/online/reader/reader"
   ],
   "window": {
     "navigationBarTextStyle": "black",

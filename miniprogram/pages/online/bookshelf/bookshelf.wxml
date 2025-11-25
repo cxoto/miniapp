@@ -1,0 +1,63 @@
+<view class="online-bookshelf">
+  <!-- 用户信息区域 -->
+  <view class="user-section" wx:if="{{userInfo}}">
+    <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill" />
+    <view class="user-info">
+      <text class="username">{{userInfo.username}}</text>
+      <text class="stats">书架: {{userInfo.bookshelfCount}}本 | 阅读时长: {{readingHours}}小时</text>
+    </view>
+    <view class="search-btn" bindtap="goToSearch">
+      <text class="icon">🔍</text>
+    </view>
+  </view>
+
+  <!-- 分组标签 -->
+  <scroll-view class="group-tabs" scroll-x enable-flex>
+    <view
+      class="group-tab {{currentGroupId === item.groupId ? 'active' : ''}}"
+      wx:for="{{bookGroups}}"
+      wx:key="groupId"
+      data-groupid="{{item.groupId}}"
+      bindtap="onGroupChange"
+    >
+      <text>{{item.groupName}}</text>
+      <text class="count">({{item.bookCount}})</text>
+    </view>
+  </scroll-view>
+
+  <!-- 书架列表 -->
+  <view class="book-list" wx:if="{{!loading && filteredBookList.length > 0}}">
+    <view
+      class="book-item"
+      wx:for="{{filteredBookList}}"
+      wx:key="bookId"
+      data-bookid="{{item.bookId}}"
+      bindtap="openBook"
+    >
+      <image class="book-cover" src="{{item.coverUrl}}" mode="aspectFill" />
+      <view class="book-info">
+        <text class="book-name">{{item.bookName}}</text>
+        <text class="book-author">作者: {{item.author}}</text>
+        <text class="book-progress">进度: 第{{item.currentChapter}}章 / {{item.progress}}%</text>
+        <text class="book-time">{{item.lastReadTime}}</text>
+      </view>
+      <view class="book-status">
+        <text class="remaining">剩余{{item.remainingChapters}}章</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && filteredBookList.length === 0}}">
+    <text class="empty-icon">📚</text>
+    <text class="empty-text">书架空空如也</text>
+    <view class="empty-btn" bindtap="goToSearch">
+      <text>去搜索书籍</text>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

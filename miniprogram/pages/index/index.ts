@@ -90,6 +90,11 @@ Component({
             url: '/pages/reader/bookshelf/bookshelf',
           });
           break;
+        case 'online-reader':
+          wx.navigateTo({
+            url: '/pages/online/bookshelf/bookshelf',
+          });
+          break;
         case 'todo':
           wx.switchTab({
             url: '/pages/todo/lists/lists',
