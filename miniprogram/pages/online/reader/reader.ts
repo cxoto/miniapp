@@ -26,26 +26,44 @@ Component({
     totalChapters: 0,
     loading: true,
     showCatalog: false,
+    showControlPanel: false,
     fontSize: 16,
     bgColor: '#fff',
     textColor: '#333'
   },
 
-  lifetimes: {
-    attached() {
-      const pages = getCurrentPages()
-      const currentPage = pages[pages.length - 1] as any
-      const options = currentPage.options
+  // 使用 onLoad 获取页面参数（推荐）
+  onLoad(options: any) {
+    if (options && options.bookId && options.bookUrl) {
+      this.setData({
+        bookId: options.bookId,
+        bookUrl: decodeURIComponent(options.bookUrl),
+        currentChapterIndex: parseInt(options.chapterIndex || '0')
+      })
 
-      if (options.bookId && options.bookUrl) {
-        this.setData({
-          bookId: options.bookId,
-          bookUrl: decodeURIComponent(options.bookUrl),
-          currentChapterIndex: parseInt(options.chapterIndex || '0')
-        })
+      this.loadChapterContent()
+      this.loadChapterList()
+    }
+  },
 
-        this.loadChapterContent()
-        this.loadChapterList()
+  pageLifetimes: {
+    show() {
+      // 页面显示时获取参数（备用方案）
+      if (!this.data.bookId) {
+        const pages = getCurrentPages()
+        const currentPage = pages[pages.length - 1] as any
+        const options = currentPage.options
+
+        if (options && options.bookId && options.bookUrl) {
+          this.setData({
+            bookId: options.bookId,
+            bookUrl: decodeURIComponent(options.bookUrl),
+            currentChapterIndex: parseInt(options.chapterIndex || '0')
+          })
+
+          this.loadChapterContent()
+          this.loadChapterList()
+        }
       }
     }
   },
@@ -103,7 +121,8 @@ Component({
     prevChapter() {
       if (this.data.chapterContent?.previousChapter !== null) {
         this.setData({
-          currentChapterIndex: this.data.chapterContent.previousChapter!
+          currentChapterIndex: this.data.chapterContent.previousChapter!,
+          showControlPanel: false
         })
         this.loadChapterContent()
         // 滚动到顶部
@@ -125,7 +144,8 @@ Component({
     nextChapter() {
       if (this.data.chapterContent?.nextChapter !== null) {
         this.setData({
-          currentChapterIndex: this.data.chapterContent.nextChapter!
+          currentChapterIndex: this.data.chapterContent.nextChapter!,
+          showControlPanel: false
         })
         this.loadChapterContent()
         // 滚动到顶部
@@ -157,7 +177,8 @@ Component({
       const chapterIndex = e.currentTarget.dataset.index
       this.setData({
         currentChapterIndex: chapterIndex,
-        showCatalog: false
+        showCatalog: false,
+        showControlPanel: false
       })
       this.loadChapterContent()
       // 滚动到顶部
@@ -209,6 +230,22 @@ Component({
       this.setData({
         showCatalog: false
       })
+    },
+
+    /**
+     * 切换控制面板显示/隐藏
+     */
+    toggleControlPanel() {
+      this.setData({
+        showControlPanel: !this.data.showControlPanel
+      })
+    },
+
+    /**
+     * 阻止事件冒泡
+     */
+    stopPropagation() {
+      // 阻止点击事件冒泡到父元素
     }
   }
 })

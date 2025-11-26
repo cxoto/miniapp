@@ -5,7 +5,7 @@
   </view>
 
   <!-- 章节内容 -->
-  <view class="reader-content" wx:if="{{!loading && chapterContent}}">
+  <view class="reader-content" wx:if="{{!loading && chapterContent}}" bindtap="toggleControlPanel">
     <!-- 章节标题 -->
     <view class="chapter-title">
       <text>{{chapterContent.chapterTitle}}</text>
@@ -15,7 +15,10 @@
     <view class="chapter-text" style="font-size: {{fontSize}}px; color: {{textColor}};">
       <text>{{chapterContent.content}}</text>
     </view>
+  </view>
 
+  <!-- 底部控制面板 -->
+  <view class="control-panel {{showControlPanel ? 'show' : ''}}" wx:if="{{!loading && chapterContent}}" catchtap="stopPropagation">
     <!-- 导航按钮 -->
     <view class="chapter-nav">
       <view
@@ -86,14 +89,13 @@
   </view>
 
   <!-- 目录弹窗 -->
-  <view class="catalog-modal" wx:if="{{showCatalog}}">
-    <view class="catalog-mask" bindtap="closeCatalog"></view>
-    <view class="catalog-content">
+  <view class="catalog-modal" wx:if="{{showCatalog}}" catchtap="closeCatalog">
+    <view class="catalog-content" catchtap="stopPropagation">
       <view class="catalog-header">
         <text class="catalog-title">目录</text>
         <text class="catalog-close" bindtap="closeCatalog">✕</text>
       </view>
-      <scroll-view class="catalog-list" scroll-y>
+      <scroll-view class="catalog-list" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{true}}">
         <view
           class="catalog-item {{item.chapterIndex === currentChapterIndex ? 'active' : ''}}"
           wx:for="{{chapterList}}"
