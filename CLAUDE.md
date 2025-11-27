@@ -25,11 +25,21 @@ miniprogram/          # Main WeChat miniprogram source code
   app.json            # App configuration (pages, tabBar, window)
   app.miniapp.json    # Native app identity/login configuration
   pages/              # Page components
-    index/            # Home page
+    index/            # Home page (iOS style)
+    reader/           # Local reading feature
+      bookshelf/      # Local bookshelf page
+      reading/        # Local reading page
+    online/           # Online reading feature
+      bookshelf/      # Online bookshelf page
+      search/         # Book search page
+      reader/         # Online reader page
+    todo/             # Task management (Microsoft To Do style)
+      lists/          # Task lists page
+      detail/         # Task detail page
     apps/             # Apps showcase page
     contact/          # Contact page
-    logs/             # Logs page
   utils/              # Utility functions
+    onlineMockApi.ts  # Online reading Mock API
 miniapp/              # Native platform resources
   android/            # Android-specific native resources
 i18n/                 # Internationalization files (base.json)
@@ -73,8 +83,8 @@ Each page follows the standard WeChat mini program structure:
 ### App Configuration
 
 **app.json** defines:
-- Page routes (index, apps, logs, contact)
-- Tab bar with 3 tabs: 首页 (Home), Apps, 联系我们 (Contact)
+- Page routes (index, reader, online, todo, apps, contact)
+- Tab bar with 4 tabs: 首页 (Home), 阅读 (Reading), 任务 (Tasks), 联系我 (Contact)
 - Window styling (white background, black nav text)
 
 **app.miniapp.json** configures native app behavior:
@@ -174,11 +184,21 @@ miniprogram/          # 微信小程序主源代码
   app.json            # 应用配置（页面，tabBar，窗口样式）
   app.miniapp.json    # 原生应用身份/登录配置
   pages/              # 页面组件
-    index/            # 首页
+    index/            # 首页（iOS 风格）
+    reader/           # 本地阅读功能
+      bookshelf/      # 本地书架页面
+      reading/        # 本地阅读页面
+    online/           # 在线阅读功能
+      bookshelf/      # 在线书架页面
+      search/         # 书籍搜索页面
+      reader/         # 在线阅读器页面
+    todo/             # 任务管理（Microsoft To Do 风格）
+      lists/          # 任务列表页面
+      detail/         # 任务详情页面
     apps/             # 应用展示页面
     contact/          # 联系页面
-    logs/             # 日志页面
   utils/              # 工具函数
+    onlineMockApi.ts  # 在线阅读 Mock API
 miniapp/              # 原生平台资源
   android/            # Android 特定原生资源
 i18n/                 # 国际化文件 (base.json)
@@ -222,8 +242,8 @@ TypeScript 文件由微信开发者工具自动编译。`tsconfig.json` 配置�
 ### 应用配置
 
 **app.json** 定义：
-- 页面路由（index, apps, logs, contact）
-- 包含 3 个标签页的标签栏：首页 (Home), Apps, 联系我们 (Contact)
+- 页面路由（index, reader, online, todo, apps, contact）
+- 包含 4 个标签页的标签栏：首页 (Home), 阅读 (Reading), 任务 (Tasks), 联系我 (Contact)
 - 窗口样式（白色背景，黑色导航文字）
 
 **app.miniapp.json** 配置原生应用行为：

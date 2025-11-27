@@ -98,7 +98,7 @@ Component({
         const result = await OnlineMockApi.addToBookshelf(
           'user_001',
           bookId,
-          `https://example.com/books/${bookId}.txt`,
+          `https://wx.xoto.cc/books/${bookId}.txt`,
           '未分组'
         )
 
@@ -146,7 +146,7 @@ Component({
 
       if (book && book.isInBookshelf) {
         wx.navigateTo({
-          url: `/pages/online/reader/reader?bookId=${bookId}&bookUrl=${encodeURIComponent(`https://example.com/books/${bookId}.txt`)}&chapterIndex=0`
+          url: `/pages/online/reader/reader?bookId=${bookId}&bookUrl=${encodeURIComponent(`https://wx.xoto.cc/books/${bookId}.txt`)}&chapterIndex=0`
         })
       } else {
         wx.showToast({

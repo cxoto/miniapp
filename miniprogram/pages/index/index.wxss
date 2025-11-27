@@ -63,7 +63,14 @@ page {
 /* App 网格滚动区域 */
 .app-grid-scroll {
   flex: 1;
-  padding-bottom: 40rpx;
+  overflow-y: auto;
+}
+
+.app-grid-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
 }
 
 /* App 网格 */
@@ -154,6 +161,7 @@ page {
 .widgets-section {
   padding: 20rpx 40rpx;
   margin-top: 20rpx;
+  padding-bottom: 100rpx;
 }
 
 .section-title {

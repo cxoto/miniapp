@@ -3,6 +3,9 @@
   min-height: 100vh;
   position: relative;
   transition: background-color 0.3s, color 0.3s;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 顶部导航栏 */

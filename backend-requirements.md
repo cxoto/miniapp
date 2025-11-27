@@ -9,7 +9,7 @@
 {
   "userId": "123456",
   "username": "阅读者",
-  "avatar": "https://example.com/avatar.jpg",
+  "avatar": "https://wx.xoto.cc/avatar.jpg",
   "vipLevel": 1,
   "bookshelfCount": 15,
   "readingTime": 12560
@@ -27,13 +27,13 @@
       "bookId": "book_001",
       "bookName": "三体",
       "author": "刘慈欣",
-      "coverUrl": "https://example.com/covers/santi.jpg",
+      "coverUrl": "https://wx.xoto.cc/covers/santi.jpg",
       "description": "科幻小说经典之作...",
       "currentChapter": 15,
       "latestChapter": 150,
       "remainingChapters": 135,
       "lastReadTime": "2024-01-15 10:30:00",
-      "bookUrl": "https://example.com/books/santi.txt",
+      "bookUrl": "https://wx.xoto.cc/books/santi.txt",
       "durChapterIndex": 14, // 当前阅读章节索引(0-based)
       "bookGroup": "科幻小说", // 书籍分组
       "progress": 10, // 阅读进度百分比
@@ -174,7 +174,7 @@
       "bookId": "search_001",
       "bookName": "三体全集",
       "author": "刘慈欣",
-      "coverUrl": "https://example.com/covers/santi.jpg",
+      "coverUrl": "https://wx.xoto.cc/covers/santi.jpg",
       "description": "科幻小说经典...",
       "wordCount": 850000,
       "source": "起点中文网",

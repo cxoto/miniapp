@@ -16,7 +16,7 @@
   </view>
 
   <!-- App 网格 -->
-  <scroll-view class="app-grid-scroll" scroll-y="true" enhanced="true" show-scrollbar="false">
+  <scroll-view class="app-grid-scroll" scroll-y="{{true}}" show-scrollbar="{{false}}" enhanced="{{true}}">
     <view class="app-grid">
       <!-- 阅读 App -->
       <view class="app-item" bindtap="openApp" data-app="reader">
@@ -125,6 +125,4 @@
     </view>
   </scroll-view>
 
-  <!-- 底部 Dock 指示器 -->
-  <view class="home-indicator"></view>
 </view>

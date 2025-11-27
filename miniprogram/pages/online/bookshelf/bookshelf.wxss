@@ -2,6 +2,9 @@
   min-height: 100vh;
   background-color: #f5f5f5;
   padding-bottom: 20rpx;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 用户信息区域 */
@@ -59,6 +62,8 @@
   padding: 20rpx 30rpx;
   background-color: white;
   border-bottom: 1rpx solid #eee;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .group-tab {

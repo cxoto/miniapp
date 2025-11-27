@@ -1,6 +1,9 @@
 .online-reader {
   min-height: 100vh;
   position: relative;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 加载状态 */
