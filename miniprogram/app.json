@@ -1,15 +1,13 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/reader/bookshelf/bookshelf",
-    "pages/reader/reading/reading",
+    "pages/online/bookshelf/bookshelf",
+    "pages/online/search/search",
+    "pages/online/reader/reader",
     "pages/todo/lists/lists",
     "pages/todo/detail/detail",
     "pages/apps/main",
-    "pages/contact/contact",
-    "pages/online/bookshelf/bookshelf",
-    "pages/online/search/search",
-    "pages/online/reader/reader"
+    "pages/contact/contact"
   ],
   "window": {
     "navigationBarTextStyle": "black",
@@ -29,7 +27,7 @@
         "selectedIconPath": "images/house1.png"
       },
       {
-        "pagePath": "pages/reader/bookshelf/bookshelf",
+        "pagePath": "pages/online/bookshelf/bookshelf",
         "text": "阅读",
         "iconPath": "images/book1.png",
         "selectedIconPath": "images/book1.png"

@@ -22,7 +22,7 @@
       <view class="app-item" bindtap="openApp" data-app="reader">
         <view class="app-icon reader-icon">
           <view class="icon-inner">
-            <text class="icon-emoji">📚</text>
+            <text class="icon-emoji">📖</text>
           </view>
         </view>
         <text class="app-name">阅读</text>
@@ -56,16 +56,6 @@
           </view>
         </view>
         <text class="app-name">快递</text>
-      </view>
-
-      <!-- 在线书城 App -->
-      <view class="app-item" bindtap="openApp" data-app="online-reader">
-        <view class="app-icon online-reader-icon">
-          <view class="icon-inner">
-            <text class="icon-emoji">🌐</text>
-          </view>
-        </view>
-        <text class="app-name">在线书城</text>
       </view>
 
       <!-- 设置 App -->

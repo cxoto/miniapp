@@ -87,11 +87,6 @@ Component({
       switch (appName) {
         case 'reader':
           wx.switchTab({
-            url: '/pages/reader/bookshelf/bookshelf',
-          });
-          break;
-        case 'online-reader':
-          wx.navigateTo({
             url: '/pages/online/bookshelf/bookshelf',
           });
           break;
