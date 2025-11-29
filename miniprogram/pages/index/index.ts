@@ -1,4 +1,6 @@
 // index.ts - iOS Style Home
+import { OnlineMockApi } from '../../utils/onlineMockApi'
+
 const app = getApp<IAppOption>()
 
 Component({
@@ -59,13 +61,24 @@ Component({
     },
 
     // 加载统计数据
-    loadStats() {
-      // 阅读统计
-      const books = wx.getStorageSync('bookshelf') || [];
-      const readingStats = {
-        booksCount: books.length,
-        currentBook: books.length > 0 ? books[0].title : '',
-      };
+    async loadStats() {
+      // 在线阅读统计
+      try {
+        const bookshelfData = await OnlineMockApi.getBookshelf('user_001')
+        const readingStats = {
+          booksCount: bookshelfData.books.length,
+          currentBook: bookshelfData.books.length > 0 ? bookshelfData.books[0].bookName : '',
+        }
+        this.setData({ readingStats })
+      } catch (error) {
+        console.error('加载阅读统计失败:', error)
+        this.setData({
+          readingStats: {
+            booksCount: 0,
+            currentBook: '',
+          }
+        })
+      }
 
       // 任务统计
       const tasks = wx.getStorageSync('todoTasks') || [];
@@ -77,7 +90,7 @@ Component({
         importantCount: importantTasks.length,
       };
 
-      this.setData({ readingStats, todoStats });
+      this.setData({ todoStats });
     },
 
     // 打开 App
