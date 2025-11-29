@@ -275,6 +275,8 @@
   display: flex;
   align-items: center;
   margin-top: 8rpx;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .note-time {
@@ -290,6 +292,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .pin-indicator {

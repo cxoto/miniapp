@@ -56,17 +56,6 @@
 
   <!-- 底部工具栏 -->
   <view class="toolbar" wx:if="{{showToolbar}}">
-    <view class="toolbar-left">
-      <view class="tool-btn" bindtap="toggleFormatMenu">
-        <text class="tool-icon">Aa</text>
-      </view>
-      <view class="tool-btn" bindtap="insertChecklist">
-        <text class="tool-icon">☑</text>
-      </view>
-      <view class="tool-btn" bindtap="insertTable">
-        <text class="tool-icon">⊞</text>
-      </view>
-    </view>
     <view class="toolbar-center">
       <text class="char-count">{{charCount}} 字符</text>
     </view>

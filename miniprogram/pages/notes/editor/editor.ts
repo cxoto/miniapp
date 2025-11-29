@@ -1,4 +1,5 @@
 // pages/notes/editor/editor.ts
+import { formatTime } from '../../../utils/util'
 
 interface Note {
   id: string;
@@ -7,6 +8,7 @@ interface Note {
   folderId: string;
   createdAt: number;
   updatedAt: number;
+  updatedAtFormated: string;
   isPinned: boolean;
 }
 
@@ -123,6 +125,7 @@ Page({
       folderId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      updatedAtFormated: formatTime(new Date),
       isPinned: false,
     };
 
@@ -321,30 +324,6 @@ Page({
     this.setData({ showMoreMenu: false });
   },
 
-  // 插入清单
-  insertChecklist() {
-    const { content } = this.data;
-    const newContent = content + (content ? '\n' : '') + '☐ ';
-    this.setData({
-      content: newContent,
-      hasChanges: true,
-      showFormatMenu: false,
-      charCount: newContent.length,
-    });
-  },
-
-  // 插入表格
-  insertTable() {
-    const { content } = this.data;
-    const table = '\n| 列1 | 列2 | 列3 |\n|-----|-----|-----|\n|     |     |     |\n';
-    const newContent = content + table;
-    this.setData({
-      content: newContent,
-      hasChanges: true,
-      showFormatMenu: false,
-      charCount: newContent.length,
-    });
-  },
 
   // 切换格式菜单
   toggleFormatMenu() {

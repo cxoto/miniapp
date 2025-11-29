@@ -50,8 +50,8 @@
         <view class="note-info">
           <text class="note-title">{{item.title || '新建备忘录'}}</text>
           <view class="note-meta">
-            <text class="note-time">{{item.updatedAt}}</text>
-            <text class="note-preview">{{item.content}}</text>
+            <text class="note-time">{{item.updatedAtFormated}}</text>
+            <text class="note-preview">{{item.shortContent}}</text>
           </view>
         </view>
       </view>
@@ -169,8 +169,8 @@
         <view class="note-info">
           <text class="note-title">{{item.title || '新建备忘录'}}</text>
           <view class="note-meta">
-            <text class="note-time">{{item.updatedAt}}</text>
-            <text class="note-preview">{{item.content}}</text>
+            <text class="note-time">{{item.updatedAtFormated}}</text>
+            <text class="note-preview">{{item.shortContent}}</text>
           </view>
         </view>
       </view>
@@ -205,8 +205,8 @@
           <view class="note-info">
             <text class="note-title">{{item.title || '新建备忘录'}}</text>
             <view class="note-meta">
-              <text class="note-time">{{item.updatedAt}}</text>
-              <text class="note-preview">{{item.content}}</text>
+              <text class="note-time">{{item.updatedAtFormated}}</text>
+              <text class="note-preview">{{item.shortContent}}</text>
             </view>
           </view>
           <view class="pin-indicator">
@@ -236,8 +236,8 @@
           <view class="note-info">
             <text class="note-title">{{item.title || '新建备忘录'}}</text>
             <view class="note-meta">
-              <text class="note-time">{{item.updatedAt}}</text>
-              <text class="note-preview">{{item.content}}</text>
+              <text class="note-time">{{item.updatedAtFormated}}</text>
+              <text class="note-preview">{{item.shortContent}}</text>
             </view>
           </view>
         </view>

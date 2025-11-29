@@ -4,9 +4,11 @@ interface Note {
   id: string;
   title: string;
   content: string;
+  shortContent?: string;
   folderId: string;
   createdAt: number;
   updatedAt: number;
+  updatedAtFormated?: string;
   isPinned: boolean;
 }
 
@@ -92,6 +94,12 @@ Page({
   loadData() {
     const folders = wx.getStorageSync('notesFolders') || [];
     const allNotes: Note[] = wx.getStorageSync('notesData') || [];
+
+    // 处理备忘录的显示字段
+    allNotes.forEach((note: Note) => {
+      // 截取内容前20个字符作为预览
+      note.shortContent = note.content ? note.content.replace(/\n/g, ' ').slice(0, 20) : '';
+    });
 
     // 计算每个文件夹的备忘录数量
     const foldersWithCount = folders.map((folder: Folder) => {
