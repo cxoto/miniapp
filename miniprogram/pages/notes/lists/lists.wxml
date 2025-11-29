@@ -8,7 +8,7 @@
     <view class="nav-bar">
       <view class="nav-left">
         <view class="back-btn" bindtap="goBack">
-          <text class="back-icon">‹</text>
+          <text class="back-icon">🔙</text>
         </view>
       </view>
       <view class="nav-title">文件夹</view>
@@ -117,7 +117,7 @@
     <view class="nav-bar">
       <view class="nav-left">
         <view class="back-btn" bindtap="backToFolders">
-          <text class="back-icon">‹</text>
+          <text class="back-icon">🔙</text>
           <text class="back-text">文件夹</text>
         </view>
       </view>

@@ -6,7 +6,7 @@
   <view class="nav-bar">
     <view class="nav-left">
       <view class="back-btn" bindtap="goBack">
-        <text class="back-icon">‹</text>
+        <text class="back-icon">🔙</text>
         <text class="back-text">备忘录</text>
       </view>
     </view>

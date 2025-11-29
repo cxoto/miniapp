@@ -1,14 +1,23 @@
 import { OnlineMockApi } from '../../../utils/onlineMockApi'
 
+// 真实 API 返回的搜索结果数据结构
 interface SearchBook {
-  bookId: string
-  bookName: string
+  bookUrl: string
+  origin: string
+  originName: string
+  type: number
+  name: string
   author: string
+  kind: string
   coverUrl: string
-  description: string
-  wordCount: number
-  source: string
-  isInBookshelf: boolean
+  intro: string
+  wordCount: string
+  latestChapterTitle: string
+  tocUrl: string
+  time: number
+  originOrder: number
+  infoHtml: string
+  tocHtml: string
 }
 
 Component({
@@ -18,8 +27,7 @@ Component({
     searching: false,
     searched: false,
     total: 0,
-    page: 1,
-    pageSize: 10
+    page: 1
   },
 
   methods: {
@@ -51,7 +59,7 @@ Component({
       })
 
       try {
-        const result = await OnlineMockApi.searchBooks(keyword, 1, this.data.pageSize)
+        const result = await OnlineMockApi.searchBooks(keyword, 1)
         this.setData({
           searchResults: result.books,
           total: result.total,
@@ -74,18 +82,10 @@ Component({
      * 添加到书架
      */
     async addToBookshelf(e: any) {
-      const bookId = e.currentTarget.dataset.bookid
-      const book = this.data.searchResults.find(b => b.bookId === bookId)
+      const bookUrl = e.currentTarget.dataset.bookurl
+      const book = this.data.searchResults.find(b => b.bookUrl === bookUrl)
 
       if (!book) {
-        return
-      }
-
-      if (book.isInBookshelf) {
-        wx.showToast({
-          title: '已在书架中',
-          icon: 'none'
-        })
         return
       }
 
@@ -95,38 +95,30 @@ Component({
           mask: true
         })
 
-        const result = await OnlineMockApi.addToBookshelf(
-          'user_001',
-          bookId,
-          `https://wx.xoto.cc/books/${bookId}.txt`,
-          '未分组'
-        )
+        await OnlineMockApi.saveBook({
+          bookUrl: book.bookUrl,
+          origin: book.origin,
+          originName: book.originName,
+          type: book.type,
+          name: book.name,
+          author: book.author,
+          kind: book.kind,
+          coverUrl: book.coverUrl,
+          intro: book.intro,
+          wordCount: book.wordCount,
+          latestChapterTitle: book.latestChapterTitle,
+          tocUrl: book.tocUrl,
+          time: book.time,
+          originOrder: book.originOrder,
+          infoHtml: book.infoHtml,
+          tocHtml: book.tocHtml
+        })
 
         wx.hideLoading()
-
-        if (result.success) {
-          wx.showToast({
-            title: '添加成功',
-            icon: 'success'
-          })
-
-          // 更新列表中的状态
-          const updatedResults = this.data.searchResults.map(b => {
-            if (b.bookId === bookId) {
-              return Object.assign({}, b, { isInBookshelf: true })
-            }
-            return b
-          })
-
-          this.setData({
-            searchResults: updatedResults
-          })
-        } else {
-          wx.showToast({
-            title: result.message,
-            icon: 'none'
-          })
-        }
+        wx.showToast({
+          title: '添加成功',
+          icon: 'success'
+        })
       } catch (error) {
         console.error('添加失败:', error)
         wx.hideLoading()
@@ -138,20 +130,14 @@ Component({
     },
 
     /**
-     * 查看书籍详情（暂时跳转到阅读页面）
+     * 查看书籍详情（跳转到阅读页面）
      */
     viewBook(e: any) {
-      const bookId = e.currentTarget.dataset.bookid
-      const book = this.data.searchResults.find(b => b.bookId === bookId)
+      const bookUrl = e.currentTarget.dataset.bookurl
 
-      if (book && book.isInBookshelf) {
+      if (bookUrl) {
         wx.navigateTo({
-          url: `/pages/online/reader/reader?bookId=${bookId}&bookUrl=${encodeURIComponent(`https://wx.xoto.cc/books/${bookId}.txt`)}&chapterIndex=0`
-        })
-      } else {
-        wx.showToast({
-          title: '请先添加到书架',
-          icon: 'none'
+          url: `/pages/online/reader/reader?bookUrl=${encodeURIComponent(bookUrl)}&chapterIndex=0`
         })
       }
     },

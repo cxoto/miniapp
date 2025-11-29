@@ -5,108 +5,193 @@
   </view>
 
   <!-- 章节内容 -->
-  <view class="reader-content" wx:if="{{!loading && chapterContent}}" bindtap="toggleControlPanel">
-    <!-- 章节标题 -->
-    <view class="chapter-title">
-      <text>{{chapterContent.chapterTitle}}</text>
+  <view
+    class="reader-content {{pageAnimationClass}}"
+    wx:if="{{!loading && chapterContent}}"
+    bindtap="handleContentTap"
+    bindtouchstart="handleTouchStart"
+    bindtouchend="handleTouchEnd"
+    bindlongpress="handleLongPress"
+    style="height: {{contentAreaHeight}}px;"
+  >
+    <!-- 内容视窗：通过 overflow:hidden 裁剪，通过 translateY 偏移 -->
+    <view class="content-viewport" style="height: {{contentAreaHeight}}px;">
+      <view
+        class="chapter-text chapter-text-measure"
+        style="font-size: {{fontSize}}px; color: {{textColor}}; transform: translateY(-{{pageOffsetY}}px);"
+      >
+        <text user-select="{{true}}">{{pageContents[0]}}</text>
+      </view>
     </view>
 
-    <!-- 正文内容 -->
-    <view class="chapter-text" style="font-size: {{fontSize}}px; color: {{textColor}};">
-      <text>{{chapterContent.content}}</text>
+    <!-- 页码显示 - 右下角 -->
+    <view class="page-indicator" style="color: {{textColor}};">
+      <text>{{currentPage + 1}} / {{totalPages}}</text>
     </view>
   </view>
 
   <!-- 底部控制面板 -->
   <view class="control-panel {{showControlPanel ? 'show' : ''}}" wx:if="{{!loading && chapterContent}}" catchtap="stopPropagation">
-    <!-- 导航按钮 -->
+    <!-- 快捷操作栏 -->
+    <view class="quick-actions">
+      <view class="action-item" bindtap="toggleCatalog">
+        <text class="action-icon">☰</text>
+        <text class="action-text">目录</text>
+      </view>
+      <view class="action-item" bindtap="toggleNightMode">
+        <text class="action-icon">{{isNightMode ? '☀' : '☾'}}</text>
+        <text class="action-text">{{isNightMode ? '白天' : '夜间'}}</text>
+      </view>
+      <view class="action-item" bindtap="toggleSettingsPanel">
+        <text class="action-icon">⚙</text>
+        <text class="action-text">设置</text>
+      </view>
+      <view class="action-item" bindtap="cacheChapters">
+        <text class="action-icon">↓</text>
+        <text class="action-text">缓存</text>
+      </view>
+    </view>
+
+    <!-- 章节导航 -->
     <view class="chapter-nav">
       <view
-        class="nav-btn {{chapterContent.previousChapter === null ? 'disabled' : ''}}"
+        class="nav-btn {{currentChapterIndex <= 0 ? 'disabled' : ''}}"
         bindtap="prevChapter"
       >
         <text>上一章</text>
       </view>
-      <view class="nav-btn catalog-btn" bindtap="toggleCatalog">
-        <text>目录</text>
+      <view class="chapter-progress">
+        <text>{{currentChapterIndex + 1}}/{{totalChapters}}</text>
       </view>
       <view
-        class="nav-btn {{chapterContent.nextChapter === null ? 'disabled' : ''}}"
+        class="nav-btn {{currentChapterIndex >= totalChapters - 1 ? 'disabled' : ''}}"
         bindtap="nextChapter"
       >
         <text>下一章</text>
       </view>
     </view>
+  </view>
 
-    <!-- 阅读设置 -->
-    <view class="reader-settings">
-      <view class="setting-row">
-        <text class="setting-label">字体大小</text>
-        <view class="font-controls">
-          <view class="control-btn" bindtap="decreaseFontSize">
-            <text>A-</text>
-          </view>
-          <text class="font-size-display">{{fontSize}}</text>
-          <view class="control-btn" bindtap="increaseFontSize">
-            <text>A+</text>
-          </view>
+  <!-- 设置面板 -->
+  <view class="settings-panel {{showSettingsPanel ? 'show' : ''}}" wx:if="{{!loading && chapterContent}}" catchtap="stopPropagation">
+    <view class="settings-header">
+      <text class="settings-title">阅读设置</text>
+    </view>
+
+    <!-- 字体大小 -->
+    <view class="setting-row">
+      <text class="setting-label">字体大小</text>
+      <view class="font-controls">
+        <view class="control-btn" bindtap="decreaseFontSize">
+          <text>A-</text>
+        </view>
+        <text class="font-size-display">{{fontSize}}</text>
+        <view class="control-btn" bindtap="increaseFontSize">
+          <text>A+</text>
         </view>
       </view>
-      <view class="setting-row">
-        <text class="setting-label">背景颜色</text>
-        <view class="color-options">
-          <view
-            class="color-option"
-            style="background-color: #fff; border: 1rpx solid #ddd;"
-            data-color="#fff"
-            data-textcolor="#333"
-            bindtap="changeBgColor"
-          ></view>
-          <view
-            class="color-option"
-            style="background-color: #f5f5dc;"
-            data-color="#f5f5dc"
-            data-textcolor="#333"
-            bindtap="changeBgColor"
-          ></view>
-          <view
-            class="color-option"
-            style="background-color: #e8f5e9;"
-            data-color="#e8f5e9"
-            data-textcolor="#333"
-            bindtap="changeBgColor"
-          ></view>
-          <view
-            class="color-option"
-            style="background-color: #2d2d2d;"
-            data-color="#2d2d2d"
-            data-textcolor="#e0e0e0"
-            bindtap="changeBgColor"
-          ></view>
-        </view>
+    </view>
+
+    <!-- 翻页方向 -->
+    <view class="setting-row">
+      <text class="setting-label">翻页方向</text>
+      <view class="direction-toggle" bindtap="togglePageDirection">
+        <text class="direction-text">{{pageDirection === 'horizontal' ? '左右翻页' : '上下翻页'}}</text>
+        <text class="direction-arrow">⇄</text>
+      </view>
+    </view>
+
+    <!-- 背景颜色 -->
+    <view class="setting-row">
+      <text class="setting-label">背景颜色</text>
+      <view class="color-options">
+        <view
+          class="color-option {{bgColor === '#fff' ? 'active' : ''}}"
+          style="background-color: #fff; border: 1rpx solid #ddd;"
+          data-color="#fff"
+          data-textcolor="#333"
+          bindtap="changeBgColor"
+        ></view>
+        <view
+          class="color-option {{bgColor === '#f5f5dc' ? 'active' : ''}}"
+          style="background-color: #f5f5dc;"
+          data-color="#f5f5dc"
+          data-textcolor="#333"
+          bindtap="changeBgColor"
+        ></view>
+        <view
+          class="color-option {{bgColor === '#e8f5e9' ? 'active' : ''}}"
+          style="background-color: #e8f5e9;"
+          data-color="#e8f5e9"
+          data-textcolor="#333"
+          bindtap="changeBgColor"
+        ></view>
+        <view
+          class="color-option {{bgColor === '#1a1a1a' ? 'active' : ''}}"
+          style="background-color: #1a1a1a;"
+          data-color="#1a1a1a"
+          data-textcolor="#c0c0c0"
+          bindtap="changeBgColor"
+        ></view>
       </view>
     </view>
   </view>
 
-  <!-- 目录弹窗 -->
-  <view class="catalog-modal" wx:if="{{showCatalog}}" catchtap="closeCatalog">
+  <!-- 目录弹窗 - 左侧显示 -->
+  <view class="catalog-modal {{showCatalog ? 'show' : ''}}" catchtap="handleCatalogMaskTap">
     <view class="catalog-content" catchtap="stopPropagation">
       <view class="catalog-header">
         <text class="catalog-title">目录</text>
-        <text class="catalog-close" bindtap="closeCatalog">✕</text>
+        <view class="catalog-actions">
+          <view class="sort-btn" bindtap="toggleCatalogSort">
+            <text>{{catalogSortAsc ? '顺序' : '倒序'}}</text>
+            <text class="sort-icon">{{catalogSortAsc ? '↓' : '↑'}}</text>
+          </view>
+          <text class="catalog-close" bindtap="closeCatalog">✕</text>
+        </view>
       </view>
       <scroll-view class="catalog-list" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{true}}">
         <view
-          class="catalog-item {{item.chapterIndex === currentChapterIndex ? 'active' : ''}}"
-          wx:for="{{chapterList}}"
-          wx:key="chapterIndex"
-          data-index="{{item.chapterIndex}}"
+          class="catalog-item {{item.index === currentChapterIndex ? 'active' : ''}}"
+          wx:for="{{displayChapterList}}"
+          wx:key="index"
+          data-index="{{item.index}}"
           bindtap="selectChapter"
         >
-          <text class="chapter-name">{{item.chapterTitle}}</text>
-          <text class="chapter-info">{{item.wordCount}}字</text>
+          <text class="chapter-name">{{item.title}}</text>
         </view>
       </scroll-view>
+    </view>
+  </view>
+
+  <!-- 替换规则弹窗 -->
+  <view class="replace-dialog-mask {{showReplaceDialog ? 'show' : ''}}" catchtap="cancelReplaceDialog">
+    <view class="replace-dialog" catchtap="stopPropagation">
+      <view class="dialog-title">添加内容过滤规则</view>
+      <view class="dialog-content">
+        <view class="input-group">
+          <text class="input-label">要替换的内容</text>
+          <input
+            class="dialog-input"
+            placeholder="输入要过滤的文字"
+            value="{{replacePattern}}"
+            bindinput="onPatternInput"
+          />
+        </view>
+        <view class="input-group">
+          <text class="input-label">替换为（留空则删除）</text>
+          <input
+            class="dialog-input"
+            placeholder="替换后的内容，可留空"
+            value="{{replaceReplacement}}"
+            bindinput="onReplacementInput"
+          />
+        </view>
+      </view>
+      <view class="dialog-actions">
+        <view class="dialog-btn cancel" bindtap="cancelReplaceDialog">取消</view>
+        <view class="dialog-btn confirm" bindtap="confirmReplaceRule">确定</view>
+      </view>
     </view>
   </view>
 </view>

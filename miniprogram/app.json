@@ -13,7 +13,7 @@
   ],
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "XCTools · 安神工具集",
+    "navigationBarTitleText": "XCTools",
     "navigationBarBackgroundColor": "#ffffff"
   },
   "tabBar": {
@@ -25,19 +25,19 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "images/house1.png",
+        "iconPath": "images/house.png",
         "selectedIconPath": "images/house1.png"
       },
       {
         "pagePath": "pages/online/bookshelf/bookshelf",
         "text": "阅读",
-        "iconPath": "images/book1.png",
+        "iconPath": "images/book.png",
         "selectedIconPath": "images/book1.png"
       },
       {
         "pagePath": "pages/todo/lists/lists",
         "text": "任务",
-        "iconPath": "images/todo1.png",
+        "iconPath": "images/todo.png",
         "selectedIconPath": "images/todo1.png"
       },
       {

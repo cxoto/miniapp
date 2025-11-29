@@ -64,10 +64,11 @@ Component({
     async loadStats() {
       // 在线阅读统计
       try {
-        const bookshelfData = await OnlineMockApi.getBookshelf('user_001')
+        const bookshelfData = await OnlineMockApi.getBookshelf(0)
+        const books = bookshelfData.data || []
         const readingStats = {
-          booksCount: bookshelfData.books.length,
-          currentBook: bookshelfData.books.length > 0 ? bookshelfData.books[0].bookName : '',
+          booksCount: books.length,
+          currentBook: books.length > 0 ? books[0].name : '',
         }
         this.setData({ readingStats })
       } catch (error) {

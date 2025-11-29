@@ -21,7 +21,6 @@
       bindtap="onGroupChange"
     >
       <text>{{item.groupName}}</text>
-      <text class="count">({{item.bookCount}})</text>
     </view>
   </scroll-view>
 
@@ -30,19 +29,20 @@
     <view
       class="book-item"
       wx:for="{{filteredBookList}}"
-      wx:key="bookId"
-      data-bookid="{{item.bookId}}"
+      wx:key="bookUrl"
+      data-bookurl="{{item.bookUrl}}"
       bindtap="openBook"
+      bindlongpress="onLongPressBook"
     >
       <image class="book-cover" src="{{item.coverUrl}}" mode="aspectFill" />
       <view class="book-info">
-        <text class="book-name">{{item.bookName}}</text>
+        <text class="book-name">{{item.name}}</text>
         <text class="book-author">作者: {{item.author}}</text>
-        <text class="book-progress">进度: 第{{item.currentChapter}}章 / {{item.progress}}%</text>
-        <text class="book-time">{{item.lastReadTime}}</text>
+        <text class="book-progress">{{item.durChapterTitle}}</text>
+        <text class="book-time">来源: {{item.originName}}</text>
       </view>
       <view class="book-status">
-        <text class="remaining">剩余{{item.remainingChapters}}章</text>
+        <text class="remaining">共{{item.totalChapterNum}}章</text>
       </view>
     </view>
   </view>

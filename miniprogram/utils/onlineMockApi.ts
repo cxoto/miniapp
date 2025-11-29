@@ -250,6 +250,9 @@ function generateChapterContent(chapterIndex: number, chapterTitle: string) {
   return paragraphs.join('\n\n')
 }
 
+// 缓存目录规则（全局只需调用一次）
+let cachedTocRules: any[] | null = null
+
 /**
  * Mock API 接口
  */
@@ -264,34 +267,103 @@ export const OnlineMockApi = {
 
   /**
    * 获取用户书架
-   * @param userId 用户ID
+   * @param refresh 是否刷新 (0: 不刷新, 1: 刷新)
    */
-  async getBookshelf(userId: string) {
-    await delay(500)
-    return {
-      books: mockData.bookshelf
-    }
+  async getBookshelf(refresh: number = 0) {
+    // 注释掉原来的 mock 数据返回
+    // return {
+    //   books: mockData.bookshelf
+    // }
+
+    // 调用真实 API
+    return new Promise<{ isSuccess: boolean; errorMsg: string; data: any[] }>((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/getBookshelf?refresh=${refresh}`,
+        method: 'GET',
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: any[] }
+          if (result.isSuccess) {
+            resolve(result)
+          } else {
+            reject(new Error(result.errorMsg || '获取书架失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
   },
 
   /**
-   * 获取文本目录规则
+   * 获取文本目录规则（带缓存，全局只调用一次）
    */
   async getTxtTocRules() {
-    await delay(200)
-    return {
-      rules: mockData.tocRules
+    // 如果已有缓存，直接返回
+    if (cachedTocRules !== null) {
+      return {
+        rules: cachedTocRules
+      }
     }
+
+    // 注释掉原来的 mock 数据返回
+    // await delay(200)
+    // return {
+    //   rules: mockData.tocRules
+    // }
+
+    // 调用真实 API
+    return new Promise<{ rules: any[] }>((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/getTxtTocRules?v=${Date.now()}`,
+        method: 'GET',
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: any[] }
+          if (result.isSuccess) {
+            // 缓存结果
+            cachedTocRules = result.data || []
+            resolve({
+              rules: cachedTocRules
+            })
+          } else {
+            reject(new Error(result.errorMsg || '获取目录规则失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
   },
 
   /**
    * 获取书籍分组
-   * @param userId 用户ID
    */
-  async getBookGroups(userId: string) {
-    await delay(300)
-    return {
-      groups: mockData.bookGroups
-    }
+  async getBookGroups() {
+    // 注释掉原来的 mock 数据返回
+    // await delay(300)
+    // return {
+    //   groups: mockData.bookGroups
+    // }
+
+    // 调用真实 API
+    return new Promise<{ isSuccess: boolean; errorMsg: string; data: any[] }>((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/getBookGroups?v=${Date.now()}`,
+        method: 'GET',
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: any[] }
+          if (result.isSuccess) {
+            resolve(result)
+          } else {
+            reject(new Error(result.errorMsg || '获取书籍分组失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
   },
 
   /**
@@ -328,16 +400,39 @@ export const OnlineMockApi = {
   /**
    * 获取章节列表
    * @param bookUrl 书籍URL
-   * @param ruleId 规则ID（可选）
    */
-  async getChapterList(bookUrl: string, ruleId?: string) {
-    await delay(600)
-    const totalChapters = 150
-    return {
-      chapters: generateChapterList(totalChapters),
-      totalChapters: totalChapters,
-      totalWords: 250000
-    }
+  async getChapterList(bookUrl: string) {
+    // 注释掉原来的 mock 数据返回
+    // await delay(600)
+    // const totalChapters = 150
+    // return {
+    //   chapters: generateChapterList(totalChapters),
+    //   totalChapters: totalChapters,
+    //   totalWords: 250000
+    // }
+    
+    // 调用真实 API
+    return new Promise<{ isSuccess: boolean; errorMsg: string; data: any[] }>((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/getChapterList?v=${Date.now()}`,
+        method: 'POST',
+        data: {
+          url: bookUrl,
+          refresh: 0
+        },
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: any[] }
+          if (result.isSuccess) {
+            resolve(result)
+          } else {
+            reject(new Error(result.errorMsg || '获取章节列表失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
   },
 
   /**
@@ -346,95 +441,308 @@ export const OnlineMockApi = {
    * @param chapterIndex 章节索引
    */
   async getBookContent(bookUrl: string, chapterIndex: number) {
-    await delay(400)
-    const chapterTitle = `第${chapterIndex + 1}章`
-    return {
-      chapterIndex: chapterIndex,
-      chapterTitle: chapterTitle,
-      content: generateChapterContent(chapterIndex, chapterTitle),
-      previousChapter: chapterIndex > 0 ? chapterIndex - 1 : null,
-      nextChapter: chapterIndex < 149 ? chapterIndex + 1 : null,
-      wordCount: Math.floor(Math.random() * 2000) + 2000
-    }
+    // 注释掉原来的 mock 数据返回
+    // await delay(400)
+    // const chapterTitle = `第${chapterIndex + 1}章`
+    // return {
+    //   chapterIndex: chapterIndex,
+    //   chapterTitle: chapterTitle,
+    //   content: generateChapterContent(chapterIndex, chapterTitle),
+    //   previousChapter: chapterIndex > 0 ? chapterIndex - 1 : null,
+    //   nextChapter: chapterIndex < 149 ? chapterIndex + 1 : null,
+    //   wordCount: Math.floor(Math.random() * 2000) + 2000
+    // }
+
+    // 调用真实 API
+    return new Promise<{ isSuccess: boolean; errorMsg: string; data: string }>((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/getBookContent?v=${Date.now()}`,
+        method: 'POST',
+        data: {
+          url: bookUrl,
+          index: chapterIndex
+        },
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: string }
+          if (result.isSuccess) {
+            resolve(result)
+          } else {
+            reject(new Error(result.errorMsg || '获取章节内容失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
   },
 
   /**
    * 搜索书籍
    * @param keyword 关键词
    * @param page 页码
-   * @param pageSize 每页数量
    */
-  async searchBooks(keyword: string, page: number = 1, pageSize: number = 10) {
-    await delay(800)
+  async searchBooks(keyword: string, page: number = 1) {
+    // 注释掉原来的 mock 数据返回
+    // await delay(800)
+    // const results = mockData.searchDatabase.filter(book =>
+    //   book.bookName.includes(keyword) ||
+    //   book.author.includes(keyword) ||
+    //   book.description.includes(keyword)
+    // )
+    // const start = (page - 1) * pageSize
+    // const end = start + pageSize
+    // return {
+    //   books: results.slice(start, end),
+    //   total: results.length,
+    //   page: page,
+    //   pageSize: pageSize
+    // }
 
-    // 简单的关键词匹配
-    const results = mockData.searchDatabase.filter(book =>
-      book.bookName.includes(keyword) ||
-      book.author.includes(keyword) ||
-      book.description.includes(keyword)
-    )
+    // 调用真实 SSE API
+    return new Promise<{ books: any[]; total: number }>((resolve, reject) => {
+      const encodedKeyword = encodeURIComponent(keyword)
+      const bookSourceGroup = encodeURIComponent('') // TODO, need support source group
 
-    const start = (page - 1) * pageSize
-    const end = start + pageSize
+      wx.request({
+        url: `https://book.xoto.cc/reader3/searchBookMultiSSE?accessToken=&key=${encodedKeyword}&bookSourceUrl=&bookSourceGroup=${bookSourceGroup}&concurrentCount=4&lastIndex=-1&page=${page}`,
+        method: 'GET',
+        enableChunked: false,
+        responseType: 'text',
+        success: (res) => {
+          try {
+            const responseText = res.data as string
+            const allBooks: any[] = []
 
-    return {
-      books: results.slice(start, end),
-      total: results.length,
-      page: page,
-      pageSize: pageSize
-    }
+            // 解析 SSE 响应，提取所有 data: 行
+            const lines = responseText.split('\n')
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const jsonStr = line.substring(6) // 去掉 'data: ' 前缀
+                try {
+                  const parsed = JSON.parse(jsonStr)
+                  if (parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
+                    allBooks.push(...parsed.data)
+                  }
+                } catch {
+                  // 忽略解析失败的行
+                }
+              }
+            }
+
+            resolve({
+              books: allBooks,
+              total: allBooks.length
+            })
+          } catch (error) {
+            reject(new Error('解析搜索结果失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
   },
 
   /**
    * 添加书籍到书架
-   * @param userId 用户ID
-   * @param bookId 书籍ID
-   * @param bookUrl 书籍URL
-   * @param bookGroup 书籍分组（可选）
+   * @param bookData 书籍数据（从搜索结果获取）
    */
-  async addToBookshelf(userId: string, bookId: string, bookUrl: string, bookGroup?: string) {
-    await delay(500)
+  async saveBook(bookData: {
+    bookUrl: string
+    origin: string
+    originName: string
+    type: number
+    name: string
+    author: string
+    kind: string
+    coverUrl: string
+    intro: string
+    wordCount: string
+    latestChapterTitle: string
+    tocUrl: string
+    time: number
+    originOrder: number
+    infoHtml: string
+    tocHtml: string
+  }) {
 
-    // 检查是否已在书架中
-    const existingBook = mockData.bookshelf.find(book => book.bookId === bookId)
-    if (existingBook) {
+    return new Promise<{ isSuccess: boolean; errorMsg: string; data: any }>((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/saveBook?v=${Date.now()}`,
+        method: 'POST',
+        header: {
+          'Content-Type': 'application/json'
+        },
+        data: {
+          bookUrl: bookData.bookUrl,
+          origin: bookData.origin,
+          originName: bookData.originName,
+          type: bookData.type,
+          name: bookData.name,
+          author: bookData.author,
+          kind: bookData.kind,
+          coverUrl: bookData.coverUrl,
+          intro: bookData.intro,
+          wordCount: bookData.wordCount,
+          latestChapterTitle: bookData.latestChapterTitle,
+          tocUrl: bookData.tocUrl,
+          time: bookData.time,
+          originOrder: bookData.originOrder,
+          infoHtml: bookData.infoHtml,
+          tocHtml: bookData.tocHtml,
+          sourceCount: 1,
+          groupId: [],
+          group: 0
+        },
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: any }
+          if (result.isSuccess) {
+            resolve(result)
+          } else {
+            reject(new Error(result.errorMsg || '添加书架失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
+  },
+
+  /**
+   * 获取替换规则
+   * 当前从本地存储读取，后续可替换为远程 API
+   */
+  async getReplaceRules(): Promise<{ isSuccess: boolean; data: any[] }> {
+    try {
+      const rules = wx.getStorageSync('replaceRules') || []
       return {
-        success: false,
-        message: "该书籍已在书架中",
-        bookId: bookId
+        isSuccess: true,
+        data: rules
+      }
+    } catch (e) {
+      console.error('获取替换规则失败:', e)
+      return {
+        isSuccess: true,
+        data: []
       }
     }
+  },
 
-    // 从搜索数据库中找到书籍信息
-    const searchBook = mockData.searchDatabase.find(book => book.bookId === bookId)
-    if (searchBook) {
-      // 添加到书架
-      const newBook = {
-        bookId: searchBook.bookId,
-        bookName: searchBook.bookName,
-        author: searchBook.author,
-        coverUrl: searchBook.coverUrl,
-        description: searchBook.description,
-        currentChapter: 0,
-        latestChapter: 100,
-        remainingChapters: 100,
-        lastReadTime: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        bookUrl: bookUrl,
-        durChapterIndex: 0,
-        bookGroup: bookGroup || "未分组",
-        progress: 0,
-        wordCount: searchBook.wordCount
+  /**
+   * 保存替换规则
+   * 当前保存到本地存储，后续可替换为远程 API
+   */
+  async saveReplaceRule(rule: {
+    id?: string
+    pattern: string
+    replacement: string
+    isRegex: boolean
+    enabled: boolean
+  }): Promise<{ isSuccess: boolean; errorMsg: string; data: any }> {
+    try {
+      let rules = wx.getStorageSync('replaceRules') || []
+
+      if (rule.id) {
+        // 更新现有规则
+        const index = rules.findIndex((r: any) => r.id === rule.id)
+        if (index >= 0) {
+          rules[index] = { ...rules[index], ...rule }
+        }
+      } else {
+        // 新增规则
+        const newRule = {
+          ...rule,
+          id: `rule_${Date.now()}`,
+          createTime: Date.now()
+        }
+        rules.push(newRule)
       }
-      mockData.bookshelf.push(newBook)
 
-      // 标记为已在书架中
-      searchBook.isInBookshelf = true
-    }
+      wx.setStorageSync('replaceRules', rules)
 
-    return {
-      success: true,
-      message: "添加成功",
-      bookId: bookId
+      return {
+        isSuccess: true,
+        errorMsg: '',
+        data: rule.id ? rule : rules[rules.length - 1]
+      }
+    } catch (e) {
+      return {
+        isSuccess: false,
+        errorMsg: '保存替换规则失败',
+        data: null
+      }
     }
+  },
+
+  /**
+   * 删除替换规则
+   */
+  async deleteReplaceRule(ruleId: string): Promise<{ isSuccess: boolean; errorMsg: string }> {
+    try {
+      let rules = wx.getStorageSync('replaceRules') || []
+      rules = rules.filter((r: any) => r.id !== ruleId)
+      wx.setStorageSync('replaceRules', rules)
+
+      return {
+        isSuccess: true,
+        errorMsg: ''
+      }
+    } catch (e) {
+      return {
+        isSuccess: false,
+        errorMsg: '删除替换规则失败'
+      }
+    }
+  },
+
+  /**
+   * 删除书籍
+   * @param bookData 书籍数据
+   */
+  async deleteBook(bookData: {
+    bookUrl: string
+    author: string
+    coverUrl: string
+    tocUrl: string
+    canUpdate: boolean
+    durChapterIndex: number
+    durChapterPos: number
+    durChapterTime: number
+    kind: string
+    intro: string
+    lastCheckTime: number
+    latestChapterTitle: string
+    name: string
+    origin: string
+    originName: string
+    totalChapterNum: number
+    type: number
+    group: number
+    wordCount: string
+  }) {
+    return new Promise<{ isSuccess: boolean; errorMsg: string; data: string }>((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/deleteBook?v=${Date.now()}`,
+        method: 'POST',
+        header: {
+          'Content-Type': 'application/json'
+        },
+        data: bookData,
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: string }
+          if (result.isSuccess) {
+            resolve(result)
+          } else {
+            reject(new Error(result.errorMsg || '删除书籍失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
   }
 }

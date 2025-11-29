@@ -32,7 +32,7 @@
       <view class="app-item" bindtap="openApp" data-app="todo">
         <view class="app-icon todo-icon">
           <view class="icon-inner">
-            <text class="icon-emoji">✓</text>
+            <text class="icon-emoji">✅</text>
           </view>
         </view>
         <text class="app-name">任务</text>
@@ -86,7 +86,7 @@
       <!-- 阅读进度小组件 -->
       <view class="widget reading-widget" bindtap="openApp" data-app="reader">
         <view class="widget-header">
-          <view class="widget-icon">📚</view>
+          <view class="widget-icon">📖</view>
           <text class="widget-title">阅读</text>
         </view>
         <view class="widget-content">
@@ -101,7 +101,7 @@
       <!-- 任务小组件 -->
       <view class="widget todo-widget" bindtap="openApp" data-app="todo">
         <view class="widget-header">
-          <view class="widget-icon">✓</view>
+          <view class="widget-icon">✅</view>
           <text class="widget-title">我的一天</text>
         </view>
         <view class="widget-content">

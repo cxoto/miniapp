@@ -31,27 +31,27 @@
       <view
         class="book-item"
         wx:for="{{searchResults}}"
-        wx:key="bookId"
+        wx:key="bookUrl"
       >
-        <view class="book-main" bindtap="viewBook" data-bookid="{{item.bookId}}">
+        <view class="book-main" bindtap="viewBook" data-bookurl="{{item.bookUrl}}">
           <image class="book-cover" src="{{item.coverUrl}}" mode="aspectFill" />
           <view class="book-info">
-            <text class="book-name">{{item.bookName}}</text>
+            <text class="book-name">{{item.name}}</text>
             <text class="book-author">作者: {{item.author}}</text>
-            <text class="book-desc">{{item.description}}</text>
+            <text class="book-desc">{{item.kind}}</text>
             <view class="book-meta">
-              <text class="word-count">{{item.wordCount}}字</text>
-              <text class="source">来源: {{item.source}}</text>
+              <text class="word-count" wx:if="{{item.wordCount}}">{{item.wordCount}}</text>
+              <text class="source">来源: {{item.originName}}</text>
             </view>
           </view>
         </view>
         <view class="book-actions">
           <view
-            class="add-btn {{item.isInBookshelf ? 'added' : ''}}"
+            class="add-btn"
             bindtap="addToBookshelf"
-            data-bookid="{{item.bookId}}"
+            data-bookurl="{{item.bookUrl}}"
           >
-            <text>{{item.isInBookshelf ? '已添加' : '+ 书架'}}</text>
+            <text>+ 书架</text>
           </view>
         </view>
       </view>
