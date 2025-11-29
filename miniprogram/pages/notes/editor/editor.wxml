@@ -1,0 +1,161 @@
+<view class="editor-container">
+  <!-- 顶部占位，让内容从胶囊按钮下方开始 -->
+  <view class="top-spacer" style="height: {{contentTop}}px;"></view>
+
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar">
+    <view class="nav-left">
+      <view class="back-btn" bindtap="goBack">
+        <text class="back-icon">‹</text>
+        <text class="back-text">备忘录</text>
+      </view>
+    </view>
+    <view class="nav-right">
+      <view class="nav-btn" bindtap="showShare">
+        <text class="nav-icon">↗</text>
+      </view>
+      <view class="nav-btn" bindtap="showMore">
+        <text class="nav-icon">···</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 编辑区域 -->
+  <scroll-view class="editor-scroll" scroll-y="{{true}}">
+    <view class="editor-content">
+      <!-- 日期信息 -->
+      <view class="note-date">
+        <text>{{dateStr}}</text>
+      </view>
+
+      <!-- 标题输入 -->
+      <input
+        class="title-input"
+        placeholder="标题"
+        placeholder-class="placeholder"
+        value="{{title}}"
+        bindinput="onTitleInput"
+        bindconfirm="onTitleConfirm"
+        focus="{{titleFocus}}"
+        confirm-type="next"
+      />
+
+      <!-- 内容输入 -->
+      <textarea
+        class="content-input"
+        placeholder="开始输入..."
+        placeholder-class="placeholder"
+        value="{{content}}"
+        bindinput="onContentInput"
+        focus="{{contentFocus}}"
+        auto-height="{{true}}"
+        show-confirm-bar="{{false}}"
+      />
+    </view>
+  </scroll-view>
+
+  <!-- 底部工具栏 -->
+  <view class="toolbar" wx:if="{{showToolbar}}">
+    <view class="toolbar-left">
+      <view class="tool-btn" bindtap="toggleFormatMenu">
+        <text class="tool-icon">Aa</text>
+      </view>
+      <view class="tool-btn" bindtap="insertChecklist">
+        <text class="tool-icon">☑</text>
+      </view>
+      <view class="tool-btn" bindtap="insertTable">
+        <text class="tool-icon">⊞</text>
+      </view>
+    </view>
+    <view class="toolbar-center">
+      <text class="char-count">{{charCount}} 字符</text>
+    </view>
+    <view class="toolbar-right">
+      <view class="tool-btn new" bindtap="goBack">
+        <text class="tool-icon">✎</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 格式菜单 -->
+  <view class="format-menu {{showFormatMenu ? 'visible' : ''}}" wx:if="{{showFormatMenu}}">
+    <view class="format-item" bindtap="insertChecklist">
+      <text class="format-icon">☑</text>
+      <text class="format-label">清单</text>
+    </view>
+    <view class="format-item" bindtap="insertTable">
+      <text class="format-icon">⊞</text>
+      <text class="format-label">表格</text>
+    </view>
+  </view>
+
+  <!-- 分享菜单 -->
+  <view class="modal-mask {{showShareMenu ? 'visible' : ''}}" wx:if="{{showShareMenu}}" bindtap="hideShare">
+    <view class="action-sheet" catchtap="preventBubble">
+      <view class="action-header">
+        <text class="action-title">分享备忘录</text>
+      </view>
+      <view class="action-content">
+        <view class="action-item" bindtap="copyContent">
+          <view class="action-icon-wrapper">
+            <text class="action-icon">📋</text>
+          </view>
+          <text class="action-label">拷贝</text>
+        </view>
+      </view>
+      <view class="action-cancel" bindtap="hideShare">
+        <text>取消</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 更多菜单 -->
+  <view class="modal-mask {{showMoreMenu ? 'visible' : ''}}" wx:if="{{showMoreMenu}}" bindtap="hideMore">
+    <view class="action-sheet" catchtap="preventBubble">
+      <view class="action-list">
+        <view class="action-row" bindtap="togglePin">
+          <text class="row-icon">📌</text>
+          <text class="row-label">{{note.isPinned ? '取消置顶' : '置顶备忘录'}}</text>
+        </view>
+        <view class="action-row" bindtap="showFolderSelector">
+          <text class="row-icon">📁</text>
+          <text class="row-label">移动备忘录</text>
+          <text class="row-value">{{currentFolder.name || '备忘录'}}</text>
+        </view>
+        <view class="action-row delete" bindtap="deleteNote">
+          <text class="row-icon">🗑️</text>
+          <text class="row-label">删除备忘录</text>
+        </view>
+      </view>
+      <view class="action-cancel" bindtap="hideMore">
+        <text>取消</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 文件夹选择器 -->
+  <view class="modal-mask {{showFolderPicker ? 'visible' : ''}}" wx:if="{{showFolderPicker}}" bindtap="hideFolderSelector">
+    <view class="folder-picker" catchtap="preventBubble">
+      <view class="picker-header">
+        <view class="picker-cancel" bindtap="hideFolderSelector">取消</view>
+        <text class="picker-title">移动到</text>
+        <view class="picker-placeholder"></view>
+      </view>
+      <scroll-view class="picker-list" scroll-y="{{true}}">
+        <view
+          class="picker-item {{note.folderId === item.id ? 'active' : ''}}"
+          wx:for="{{folders}}"
+          wx:key="id"
+          bindtap="selectFolder"
+          data-id="{{item.id}}"
+        >
+          <view class="picker-icon-wrapper" style="background-color: {{item.color}}">
+            <text class="picker-icon">{{item.icon}}</text>
+          </view>
+          <text class="picker-name">{{item.name}}</text>
+          <text class="picker-check" wx:if="{{note.folderId === item.id}}">✓</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

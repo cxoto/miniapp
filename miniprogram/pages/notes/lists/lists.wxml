@@ -1,0 +1,311 @@
+<view class="notes-container">
+  <!-- 顶部占位，让内容从胶囊按钮下方开始 -->
+  <view class="top-spacer" style="height: {{contentTop}}px;"></view>
+
+  <!-- 文件夹列表视图 -->
+  <view class="folder-view" wx:if="{{showFolderList}}">
+    <!-- 顶部导航栏 -->
+    <view class="nav-bar">
+      <view class="nav-left">
+        <view class="back-btn" bindtap="goBack">
+          <text class="back-icon">‹</text>
+        </view>
+      </view>
+      <view class="nav-title">文件夹</view>
+      <view class="nav-right">
+        <view class="edit-btn" bindtap="showNewFolderModal">
+          <text>新建</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 搜索栏 -->
+    <view class="search-container">
+      <view class="search-bar">
+        <text class="search-icon">🔍</text>
+        <input
+          class="search-input"
+          placeholder="搜索"
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+        />
+        <view class="search-clear" wx:if="{{searchKeyword}}" bindtap="clearSearch">
+          <text>✕</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 搜索结果 -->
+    <scroll-view class="search-results" scroll-y="{{true}}" wx:if="{{isSearching}}">
+      <view wx:if="{{searchResults.length === 0}}" class="empty-search">
+        <text>未找到相关备忘录</text>
+      </view>
+      <view
+        class="note-item"
+        wx:for="{{searchResults}}"
+        wx:key="id"
+        bindtap="openNote"
+        data-id="{{item.id}}"
+      >
+        <view class="note-info">
+          <text class="note-title">{{item.title || '新建备忘录'}}</text>
+          <view class="note-meta">
+            <text class="note-time">{{item.updatedAt}}</text>
+            <text class="note-preview">{{item.content}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 文件夹列表 -->
+    <scroll-view class="folder-list" scroll-y="{{true}}" wx:else>
+      <!-- 本地存储区域 -->
+      <view class="folder-section">
+        <view class="section-header">
+          <text class="section-title">本地</text>
+        </view>
+
+        <!-- 所有备忘录 -->
+        <view
+          class="folder-item"
+          bindtap="enterFolder"
+          data-id="all"
+        >
+          <view class="folder-icon-wrapper" style="background-color: #FFD60A">
+            <text class="folder-icon">📝</text>
+          </view>
+          <view class="folder-info">
+            <text class="folder-name">所有备忘录</text>
+          </view>
+          <text class="folder-count">{{totalNotesCount}}</text>
+          <text class="folder-arrow">›</text>
+        </view>
+
+        <!-- 其他文件夹 -->
+        <view
+          class="folder-item"
+          wx:for="{{folders}}"
+          wx:key="id"
+          wx:if="{{item.id !== 'all'}}"
+          bindtap="enterFolder"
+          bindlongpress="onFolderLongPress"
+          data-id="{{item.id}}"
+        >
+          <view class="folder-icon-wrapper" style="background-color: {{item.color}}">
+            <text class="folder-icon">{{item.icon}}</text>
+          </view>
+          <view class="folder-info">
+            <text class="folder-name">{{item.name}}</text>
+          </view>
+          <text class="folder-count">{{item.count || 0}}</text>
+          <text class="folder-arrow">›</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 底部新建按钮 -->
+    <view class="bottom-bar" wx:if="{{!isSearching}}">
+      <view class="new-note-btn" bindtap="createNote">
+        <text class="new-note-icon">✎</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 备忘录列表视图 -->
+  <view class="notes-view" wx:else>
+    <!-- 顶部导航栏 -->
+    <view class="nav-bar">
+      <view class="nav-left">
+        <view class="back-btn" bindtap="backToFolders">
+          <text class="back-icon">‹</text>
+          <text class="back-text">文件夹</text>
+        </view>
+      </view>
+      <view class="nav-right">
+        <view class="edit-btn" bindtap="toggleEditMode">
+          <text>{{isEditMode ? '完成' : '编辑'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 文件夹标题 -->
+    <view class="folder-header">
+      <text class="folder-title">{{currentFolder.name}}</text>
+    </view>
+
+    <!-- 搜索栏 -->
+    <view class="search-container">
+      <view class="search-bar">
+        <text class="search-icon">🔍</text>
+        <input
+          class="search-input"
+          placeholder="搜索"
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+        />
+        <view class="search-clear" wx:if="{{searchKeyword}}" bindtap="clearSearch">
+          <text>✕</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 搜索结果 -->
+    <scroll-view class="notes-list" scroll-y="{{true}}" wx:if="{{isSearching}}">
+      <view wx:if="{{searchResults.length === 0}}" class="empty-notes">
+        <text class="empty-text">未找到相关备忘录</text>
+      </view>
+      <view
+        class="note-item"
+        wx:for="{{searchResults}}"
+        wx:key="id"
+        bindtap="openNote"
+        data-id="{{item.id}}"
+      >
+        <view class="note-checkbox" wx:if="{{isEditMode}}">
+          <view class="checkbox {{selectedNotes.includes(item.id) ? 'checked' : ''}}">
+            <text wx:if="{{selectedNotes.includes(item.id)}}">✓</text>
+          </view>
+        </view>
+        <view class="note-info">
+          <text class="note-title">{{item.title || '新建备忘录'}}</text>
+          <view class="note-meta">
+            <text class="note-time">{{item.updatedAt}}</text>
+            <text class="note-preview">{{item.content}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 备忘录列表 -->
+    <scroll-view class="notes-list" scroll-y="{{true}}" wx:else>
+      <!-- 空状态 -->
+      <view wx:if="{{displayNotes.length === 0}}" class="empty-notes">
+        <text class="empty-icon">📝</text>
+        <text class="empty-text">没有备忘录</text>
+      </view>
+
+      <!-- 置顶备忘录 -->
+      <view class="notes-section" wx:if="{{pinnedNotes.length > 0}}">
+        <view class="section-header">
+          <text class="section-label">已置顶</text>
+        </view>
+        <view
+          class="note-item"
+          wx:for="{{pinnedNotes}}"
+          wx:key="id"
+          bindtap="openNote"
+          bindlongpress="onNoteLongPress"
+          data-id="{{item.id}}"
+        >
+          <view class="note-checkbox" wx:if="{{isEditMode}}">
+            <view class="checkbox {{selectedNotes.includes(item.id) ? 'checked' : ''}}">
+              <text wx:if="{{selectedNotes.includes(item.id)}}">✓</text>
+            </view>
+          </view>
+          <view class="note-info">
+            <text class="note-title">{{item.title || '新建备忘录'}}</text>
+            <view class="note-meta">
+              <text class="note-time">{{item.updatedAt}}</text>
+              <text class="note-preview">{{item.content}}</text>
+            </view>
+          </view>
+          <view class="pin-indicator">
+            <text>📌</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 普通备忘录 -->
+      <view class="notes-section" wx:if="{{unpinnedNotes.length > 0}}">
+        <view class="section-header" wx:if="{{pinnedNotes.length > 0}}">
+          <text class="section-label">备忘录</text>
+        </view>
+        <view
+          class="note-item"
+          wx:for="{{unpinnedNotes}}"
+          wx:key="id"
+          bindtap="openNote"
+          bindlongpress="onNoteLongPress"
+          data-id="{{item.id}}"
+        >
+          <view class="note-checkbox" wx:if="{{isEditMode}}">
+            <view class="checkbox {{selectedNotes.includes(item.id) ? 'checked' : ''}}">
+              <text wx:if="{{selectedNotes.includes(item.id)}}">✓</text>
+            </view>
+          </view>
+          <view class="note-info">
+            <text class="note-title">{{item.title || '新建备忘录'}}</text>
+            <view class="note-meta">
+              <text class="note-time">{{item.updatedAt}}</text>
+              <text class="note-preview">{{item.content}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 底部工具栏 -->
+    <view class="bottom-bar">
+      <view class="bottom-left" wx:if="{{isEditMode}}">
+        <view class="action-btn" bindtap="toggleSelectAll">
+          <text>{{selectedNotes.length === displayNotes.length ? '取消全选' : '全选'}}</text>
+        </view>
+      </view>
+      <view class="bottom-left" wx:else>
+        <text class="notes-count">{{displayNotes.length}} 个备忘录</text>
+      </view>
+
+      <view class="bottom-center" wx:if="{{isEditMode && selectedNotes.length > 0}}">
+        <view class="action-btn" bindtap="moveSelectedNotes">
+          <text class="action-icon">📁</text>
+        </view>
+        <view class="action-btn delete" bindtap="deleteSelectedNotes">
+          <text class="action-icon">🗑️</text>
+        </view>
+      </view>
+
+      <view class="bottom-right">
+        <view class="new-note-btn" bindtap="createNote">
+          <text class="new-note-icon">✎</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新建文件夹弹窗 -->
+  <view class="modal-mask {{showNewFolder ? 'visible' : ''}}" wx:if="{{showNewFolder}}" bindtap="hideNewFolderModal">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-header">
+        <view class="modal-cancel" bindtap="hideNewFolderModal">取消</view>
+        <text class="modal-title">新建文件夹</text>
+        <view class="modal-confirm" bindtap="createNewFolder">完成</view>
+      </view>
+      <view class="modal-body">
+        <view class="folder-preview">
+          <view class="preview-icon-wrapper" style="background-color: {{newFolderColor}}">
+            <text class="preview-icon">📁</text>
+          </view>
+        </view>
+        <input
+          class="folder-name-input"
+          placeholder="名称"
+          value="{{newFolderName}}"
+          bindinput="onNewFolderNameInput"
+          focus="{{showNewFolder}}"
+        />
+        <view class="color-picker">
+          <view
+            class="color-option {{newFolderColor === item ? 'active' : ''}}"
+            wx:for="{{colorOptions}}"
+            wx:key="*this"
+            style="background-color: {{item}}"
+            bindtap="selectFolderColor"
+            data-color="{{item}}"
+          >
+            <text class="color-check" wx:if="{{newFolderColor === item}}">✓</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

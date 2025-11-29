@@ -350,8 +350,10 @@
 
 .task-meta {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   margin-top: 8rpx;
+  overflow: hidden;
 }
 
 .meta-item {
@@ -359,6 +361,12 @@
   color: #605e5c;
   margin-right: 16rpx;
   padding: 4rpx 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.meta-item.subtask {
+  flex-shrink: 1;
 }
 
 .meta-item.myday {

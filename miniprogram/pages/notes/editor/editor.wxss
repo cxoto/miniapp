@@ -1,0 +1,414 @@
+/* iOS 备忘录编辑器风格 */
+
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #fff;
+}
+
+/* 顶部占位 */
+.top-spacer {
+  width: 100%;
+  background-color: #f2f2f7;
+  flex-shrink: 0;
+}
+
+/* 导航栏 */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 24rpx;
+  background-color: #f2f2f7;
+  border-bottom: 1rpx solid #e5e5ea;
+}
+
+.nav-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  color: #007AFF;
+  font-size: 34rpx;
+}
+
+.back-icon {
+  font-size: 48rpx;
+  font-weight: 300;
+  margin-right: 4rpx;
+}
+
+.back-text {
+  font-size: 34rpx;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.nav-btn {
+  padding: 8rpx 16rpx;
+}
+
+.nav-icon {
+  font-size: 40rpx;
+  color: #007AFF;
+}
+
+/* 编辑区域 */
+.editor-scroll {
+  flex: 1;
+  background-color: #fff;
+}
+
+.editor-content {
+  padding: 24rpx 32rpx;
+  padding-bottom: 200rpx;
+  min-height: 100%;
+}
+
+.note-date {
+  text-align: center;
+  padding: 16rpx 0 32rpx;
+}
+
+.note-date text {
+  font-size: 26rpx;
+  color: #8e8e93;
+}
+
+.title-input {
+  width: 100%;
+  font-size: 41rpx;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 48rpx;
+  line-height: 1.5;
+}
+
+.content-input {
+  width: 100%;
+  font-size: 34rpx;
+  color: #000;
+  line-height: 1.6;
+  min-height: 400rpx;
+}
+
+.placeholder {
+  color: #c7c7cc;
+}
+
+/* 底部工具栏 */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 24rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background-color: #f2f2f7;
+  border-top: 1rpx solid #e5e5ea;
+}
+
+.toolbar-left, .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.toolbar-center {
+  flex: 1;
+  text-align: center;
+}
+
+.char-count {
+  font-size: 24rpx;
+  color: #8e8e93;
+}
+
+.tool-btn {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+}
+
+.tool-btn:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tool-icon {
+  font-size: 36rpx;
+  color: #007AFF;
+}
+
+.tool-btn.new {
+  background-color: #FFD60A;
+  border-radius: 50%;
+}
+
+.tool-btn.new .tool-icon {
+  color: #000;
+}
+
+/* 格式菜单 */
+.format-menu {
+  position: absolute;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  left: 24rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20rpx);
+  transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+}
+
+.format-menu.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.format-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  border-bottom: 1rpx solid #e5e5ea;
+}
+
+.format-item:last-child {
+  border-bottom: none;
+}
+
+.format-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.format-label {
+  font-size: 32rpx;
+  color: #000;
+}
+
+/* 弹窗遮罩 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 100;
+}
+
+.modal-mask.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 操作菜单 */
+.action-sheet {
+  width: 100%;
+  background-color: #f2f2f7;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
+}
+
+.action-header {
+  padding: 24rpx;
+  text-align: center;
+  border-bottom: 1rpx solid #e5e5ea;
+}
+
+.action-title {
+  font-size: 26rpx;
+  color: #8e8e93;
+}
+
+.action-content {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 32rpx;
+  background-color: #fff;
+  margin: 16rpx;
+  border-radius: 16rpx;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 25%;
+  padding: 16rpx;
+}
+
+.action-icon-wrapper {
+  width: 100rpx;
+  height: 100rpx;
+  background-color: #e5e5ea;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+}
+
+.action-icon {
+  font-size: 40rpx;
+}
+
+.action-label {
+  font-size: 24rpx;
+  color: #000;
+}
+
+.action-list {
+  margin: 16rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 24rpx;
+  border-bottom: 1rpx solid #e5e5ea;
+}
+
+.action-row:last-child {
+  border-bottom: none;
+}
+
+.action-row.delete .row-label {
+  color: #FF453A;
+}
+
+.row-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.row-label {
+  flex: 1;
+  font-size: 34rpx;
+  color: #000;
+}
+
+.row-value {
+  font-size: 30rpx;
+  color: #8e8e93;
+}
+
+.action-cancel {
+  margin: 16rpx;
+  margin-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  text-align: center;
+}
+
+.action-cancel text {
+  font-size: 36rpx;
+  color: #007AFF;
+  font-weight: 600;
+}
+
+/* 文件夹选择器 */
+.folder-picker {
+  width: 100%;
+  max-height: 70vh;
+  background-color: #f2f2f7;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #e5e5ea;
+}
+
+.picker-cancel {
+  color: #007AFF;
+  font-size: 34rpx;
+  padding: 8rpx 16rpx;
+}
+
+.picker-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #000;
+}
+
+.picker-placeholder {
+  width: 100rpx;
+}
+
+.picker-list {
+  flex: 1;
+  padding: 16rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 24rpx;
+  margin-bottom: 2rpx;
+  border-radius: 16rpx;
+}
+
+.picker-item.active {
+  background-color: rgba(0, 122, 255, 0.1);
+}
+
+.picker-icon-wrapper {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.picker-icon {
+  font-size: 28rpx;
+}
+
+.picker-name {
+  flex: 1;
+  font-size: 34rpx;
+  color: #000;
+}
+
+.picker-check {
+  font-size: 36rpx;
+  color: #007AFF;
+  font-weight: 600;
+}

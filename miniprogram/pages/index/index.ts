@@ -109,6 +109,10 @@ Component({
           });
           break;
         case 'notes':
+          wx.navigateTo({
+            url: '/pages/notes/lists/lists',
+          });
+          break;
         case 'express':
         case 'settings':
         case 'more':

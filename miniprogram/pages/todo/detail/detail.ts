@@ -110,10 +110,8 @@ Page({
   // 加载列表
   loadLists() {
     const customLists = wx.getStorageSync('todoLists') || [];
-    const allLists: TodoList[] = [
-      { id: 'inbox', name: '任务', color: '#0078d4' },
-      ...customLists,
-    ];
+    const defaultList: TodoList[] = [{ id: 'inbox', name: '任务', color: '#0078d4' }];
+    const allLists: TodoList[] = defaultList.concat(customLists);
     this.setData({ allLists });
   },
 

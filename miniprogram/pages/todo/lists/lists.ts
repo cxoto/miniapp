@@ -365,7 +365,7 @@ Page({
       newTask.dueDate = newTaskDueDate;
     }
 
-    const updatedTasks = [newTask, ...allTasks];
+    const updatedTasks = [newTask].concat(allTasks);
     wx.setStorageSync('todoTasks', updatedTasks);
 
     this.setData({
@@ -464,7 +464,7 @@ Page({
       createdAt: Date.now(),
     };
 
-    const updatedLists = [...customLists, newList];
+    const updatedLists = customLists.concat([newList]);
     wx.setStorageSync('todoLists', updatedLists);
 
     this.setData({
@@ -568,20 +568,20 @@ Page({
 
         switch (res.tapIndex) {
           case 0:
-            sortedTasks = [...incompleteTasks].sort((a, b) => b.createdAt - a.createdAt);
+            sortedTasks = incompleteTasks.slice().sort((a, b) => b.createdAt - a.createdAt);
             break;
           case 1:
-            sortedTasks = [...incompleteTasks].sort((a, b) => a.title.localeCompare(b.title));
+            sortedTasks = incompleteTasks.slice().sort((a, b) => a.title.localeCompare(b.title));
             break;
           case 2:
-            sortedTasks = [...incompleteTasks].sort((a, b) => {
+            sortedTasks = incompleteTasks.slice().sort((a, b) => {
               if (!a.dueDate) return 1;
               if (!b.dueDate) return -1;
               return a.dueDate - b.dueDate;
             });
             break;
           case 3:
-            sortedTasks = [...incompleteTasks].sort((a, b) => {
+            sortedTasks = incompleteTasks.slice().sort((a, b) => {
               if (a.important === b.important) return 0;
               return a.important ? -1 : 1;
             });

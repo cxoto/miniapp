@@ -1,0 +1,494 @@
+/* iOS 备忘录风格样式 */
+
+.notes-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f2f2f7;
+  position: relative;
+}
+
+/* 顶部占位 */
+.top-spacer {
+  width: 100%;
+  background-color: #f2f2f7;
+  flex-shrink: 0;
+}
+
+/* 导航栏 */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 24rpx;
+  background-color: #f2f2f7;
+}
+
+.nav-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  color: #007AFF;
+  font-size: 34rpx;
+}
+
+.back-icon {
+  font-size: 48rpx;
+  font-weight: 300;
+  margin-right: 4rpx;
+}
+
+.back-text {
+  font-size: 34rpx;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #000;
+}
+
+.nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.edit-btn {
+  color: #007AFF;
+  font-size: 34rpx;
+}
+
+/* 文件夹标题 */
+.folder-header {
+  padding: 0 32rpx 16rpx;
+}
+
+.folder-title {
+  font-size: 68rpx;
+  font-weight: 700;
+  color: #000;
+}
+
+/* 搜索栏 */
+.search-container {
+  padding: 0 24rpx 16rpx;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: rgba(118, 118, 128, 0.12);
+  border-radius: 20rpx;
+  padding: 16rpx 20rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 34rpx;
+  color: #000;
+}
+
+.search-clear {
+  width: 36rpx;
+  height: 36rpx;
+  background-color: rgba(118, 118, 128, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-clear text {
+  font-size: 20rpx;
+  color: #fff;
+}
+
+/* 文件夹列表 */
+.folder-view, .notes-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.folder-list, .notes-list, .search-results {
+  flex: 1;
+  padding-bottom: 120rpx;
+}
+
+.folder-section {
+  margin: 24rpx;
+}
+
+.section-header {
+  padding: 16rpx 0;
+}
+
+.section-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #000;
+}
+
+.section-label {
+  font-size: 26rpx;
+  color: #8e8e93;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.folder-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 24rpx 28rpx;
+  margin-bottom: 2rpx;
+}
+
+.folder-item:first-of-type {
+  border-radius: 20rpx 20rpx 0 0;
+}
+
+.folder-item:last-of-type {
+  border-radius: 0 0 20rpx 20rpx;
+  margin-bottom: 0;
+}
+
+.folder-item:only-of-type {
+  border-radius: 20rpx;
+}
+
+.folder-icon-wrapper {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.folder-icon {
+  font-size: 32rpx;
+}
+
+.folder-info {
+  flex: 1;
+}
+
+.folder-name {
+  font-size: 34rpx;
+  color: #000;
+}
+
+.folder-count {
+  font-size: 34rpx;
+  color: #8e8e93;
+  margin-right: 12rpx;
+}
+
+.folder-arrow {
+  font-size: 40rpx;
+  color: #c7c7cc;
+  font-weight: 300;
+}
+
+/* 备忘录列表 */
+.notes-section {
+  margin: 0 24rpx 24rpx;
+}
+
+.note-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 20rpx 28rpx;
+  border-bottom: 1rpx solid #e5e5ea;
+}
+
+.note-item:first-child {
+  border-radius: 20rpx 20rpx 0 0;
+}
+
+.note-item:last-child {
+  border-radius: 0 0 20rpx 20rpx;
+  border-bottom: none;
+}
+
+.note-item:only-child {
+  border-radius: 20rpx;
+  border-bottom: none;
+}
+
+.note-checkbox {
+  margin-right: 20rpx;
+}
+
+.checkbox {
+  width: 44rpx;
+  height: 44rpx;
+  border: 4rpx solid #c7c7cc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox.checked {
+  background-color: #007AFF;
+  border-color: #007AFF;
+}
+
+.checkbox text {
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.note-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.note-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #000;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-meta {
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
+}
+
+.note-time {
+  font-size: 28rpx;
+  color: #8e8e93;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.note-preview {
+  font-size: 28rpx;
+  color: #8e8e93;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pin-indicator {
+  font-size: 24rpx;
+  color: #FFD60A;
+}
+
+/* 空状态 */
+.empty-notes, .empty-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 34rpx;
+  color: #8e8e93;
+}
+
+/* 底部工具栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 32rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background-color: #f2f2f7;
+  border-top: 1rpx solid #e5e5ea;
+}
+
+.bottom-left {
+  flex: 1;
+}
+
+.notes-count {
+  font-size: 28rpx;
+  color: #8e8e93;
+}
+
+.action-btn {
+  padding: 16rpx 24rpx;
+  color: #007AFF;
+  font-size: 32rpx;
+}
+
+.action-btn.delete {
+  color: #FF453A;
+}
+
+.action-icon {
+  font-size: 40rpx;
+}
+
+.bottom-center {
+  display: flex;
+  align-items: center;
+  gap: 32rpx;
+}
+
+.bottom-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.new-note-btn {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #FFD60A;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(255, 214, 10, 0.4);
+}
+
+.new-note-icon {
+  font-size: 40rpx;
+  color: #000;
+}
+
+/* 新建文件夹弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 100;
+}
+
+.modal-mask.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  width: 100%;
+  background-color: #f2f2f7;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #e5e5ea;
+}
+
+.modal-cancel, .modal-confirm {
+  color: #007AFF;
+  font-size: 34rpx;
+  padding: 8rpx 16rpx;
+}
+
+.modal-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #000;
+}
+
+.modal-body {
+  padding: 48rpx 24rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+}
+
+.folder-preview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 48rpx;
+}
+
+.preview-icon-wrapper {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-icon {
+  font-size: 80rpx;
+}
+
+.folder-name-input {
+  width: 100%;
+  height: 96rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 0 24rpx;
+  font-size: 34rpx;
+  margin-bottom: 32rpx;
+  box-sizing: border-box;
+}
+
+.color-picker {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24rpx;
+}
+
+.color-option {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-option.active {
+  box-shadow: 0 0 0 6rpx rgba(0, 0, 0, 0.1);
+}
+
+.color-check {
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+}

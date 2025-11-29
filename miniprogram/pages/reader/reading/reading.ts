@@ -369,7 +369,7 @@ Page({
         timeStr: `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`,
       };
 
-      this.setData({ bookmarks: [...bookmarks, newBookmark], isBookmarked: true });
+      this.setData({ bookmarks: bookmarks.concat([newBookmark]), isBookmarked: true });
       this.saveBookmarks();
       wx.showToast({ title: '已添加书签', icon: 'success' });
     }
@@ -424,13 +424,12 @@ Page({
     const theme = isNightMode ? 'dark' : 'white';
 
     this.setData({
-      settings: {
-        ...settings,
+      settings: Object.assign({}, settings, {
         isNightMode,
         bgTheme: theme,
         backgroundColor: BG_THEMES[theme].bg,
         textColor: BG_THEMES[theme].text,
-      },
+      }),
     });
     this.saveSettings();
   },
@@ -473,13 +472,12 @@ Page({
     const { settings } = this.data;
 
     this.setData({
-      settings: {
-        ...settings,
+      settings: Object.assign({}, settings, {
         bgTheme: theme,
         backgroundColor: BG_THEMES[theme].bg,
         textColor: BG_THEMES[theme].text,
         isNightMode: theme === 'dark',
-      },
+      }),
     });
     this.saveSettings();
   },

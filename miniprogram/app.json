@@ -6,6 +6,8 @@
     "pages/online/reader/reader",
     "pages/todo/lists/lists",
     "pages/todo/detail/detail",
+    "pages/notes/lists/lists",
+    "pages/notes/editor/editor",
     "pages/apps/main",
     "pages/contact/contact"
   ],

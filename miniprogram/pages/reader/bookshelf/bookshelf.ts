@@ -50,7 +50,7 @@ Page({
     filteredBooks.sort((a: Book, b: Book) => b.lastReadTime - a.lastReadTime);
 
     this.setData({
-      bookList: filteredBooks.map((book: Book) => ({ ...book, selected: false })),
+      bookList: filteredBooks.map((book: Book) => Object.assign({}, book, { selected: false })),
       selectedCount: 0,
       isAllSelected: false,
     });
@@ -68,7 +68,7 @@ Page({
     const isEditMode = !this.data.isEditMode;
     if (!isEditMode) {
       // 退出编辑模式时清除选择状态
-      const bookList = this.data.bookList.map(book => ({ ...book, selected: false }));
+      const bookList = this.data.bookList.map(book => Object.assign({}, book, { selected: false }));
       this.setData({ bookList, selectedCount: 0, isAllSelected: false });
     }
     this.setData({ isEditMode });
@@ -211,7 +211,7 @@ Page({
   // 全选/取消全选
   selectAll() {
     const isAllSelected = !this.data.isAllSelected;
-    const bookList = this.data.bookList.map(book => ({ ...book, selected: isAllSelected }));
+    const bookList = this.data.bookList.map(book => Object.assign({}, book, { selected: isAllSelected }));
     const selectedCount = isAllSelected ? bookList.length : 0;
 
     this.setData({ bookList, selectedCount, isAllSelected });
