@@ -1,9 +1,9 @@
 <view class="online-bookshelf">
   <!-- 用户信息区域 -->
   <view class="user-section" wx:if="{{userInfo}}">
-    <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill" />
+    <image class="avatar" src="{{localUserProfile.avatarUrl || userInfo.avatar}}" mode="aspectFill" />
     <view class="user-info">
-      <text class="username">{{userInfo.username}}</text>
+      <text class="username">{{localUserProfile.nickName || userInfo.username}}</text>
       <text class="stats">书架: {{userInfo.bookshelfCount}}本 | 阅读时长: {{readingHours}}小时</text>
     </view>
     <view class="search-btn" bindtap="goToSearch">
@@ -21,6 +21,9 @@
       bindtap="onGroupChange"
     >
       <text>{{item.groupName}}</text>
+    </view>
+    <view class="group-tab add-group-btn" bindtap="onAddGroup">
+      <text>+</text>
     </view>
   </scroll-view>
 

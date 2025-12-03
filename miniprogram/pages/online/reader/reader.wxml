@@ -150,11 +150,19 @@
           <text class="catalog-close" bindtap="closeCatalog">✕</text>
         </view>
       </view>
-      <scroll-view class="catalog-list" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{true}}">
+      <scroll-view
+        class="catalog-list"
+        scroll-y="{{true}}"
+        enhanced="{{true}}"
+        show-scrollbar="{{true}}"
+        scroll-into-view="{{catalogScrollToView}}"
+        scroll-with-animation="{{true}}"
+      >
         <view
           class="catalog-item {{item.index === currentChapterIndex ? 'active' : ''}}"
           wx:for="{{displayChapterList}}"
           wx:key="index"
+          id="chapter-{{item.index}}"
           data-index="{{item.index}}"
           bindtap="selectChapter"
         >

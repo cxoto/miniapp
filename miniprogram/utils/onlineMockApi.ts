@@ -699,6 +699,68 @@ export const OnlineMockApi = {
   },
 
   /**
+   * 创建书籍分组
+   * @param groupName 分组名称
+   */
+  async saveBookGroup(groupName: string): Promise<{ isSuccess: boolean; errorMsg: string; data: string }> {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/saveBookGroup?v=${Date.now()}`,
+        method: 'POST',
+        header: {
+          'Content-Type': 'application/json'
+        },
+        data: {
+          groupName: groupName
+        },
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: string }
+          if (result.isSuccess) {
+            resolve(result)
+          } else {
+            reject(new Error(result.errorMsg || '创建分组失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
+  },
+
+  /**
+   * 修改书籍分组
+   * @param bookUrl 书籍URL
+   * @param groupId 分组ID
+   */
+  async saveBookGroupId(bookUrl: string, groupId: number): Promise<{ isSuccess: boolean; errorMsg: string; data: any }> {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: `https://book.xoto.cc/reader3/saveBookGroupId?v=${Date.now()}`,
+        method: 'POST',
+        header: {
+          'Content-Type': 'application/json'
+        },
+        data: {
+          bookUrl: bookUrl,
+          groupId: groupId
+        },
+        success: (res) => {
+          const result = res.data as { isSuccess: boolean; errorMsg: string; data: any }
+          if (result.isSuccess) {
+            resolve(result)
+          } else {
+            reject(new Error(result.errorMsg || '修改分组失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
+  },
+
+  /**
    * 删除书籍
    * @param bookData 书籍数据
    */

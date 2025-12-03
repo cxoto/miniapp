@@ -96,7 +96,10 @@ Component({
     // 替换规则弹窗
     showReplaceDialog: false,
     replacePattern: '',
-    replaceReplacement: ''
+    replaceReplacement: '',
+
+    // 目录滚动定位
+    catalogScrollToView: ''
   },
 
   lifetimes: {
@@ -553,11 +556,6 @@ Component({
      */
     prevPageWithAnimation(animationClass: string) {
       if (this.data.currentPage > 0) {
-        this.setData({
-          pageAnimating: true,
-          pageAnimationClass: animationClass
-        })
-
         setTimeout(() => {
           const newPage = this.data.currentPage - 1
           this.updatePageOffset(newPage)
@@ -566,7 +564,7 @@ Component({
             pageAnimationClass: ''
           })
           this.saveReadingProgress()
-        }, 250)
+        }, 300)
       } else {
         this.prevChapter()
       }
@@ -577,11 +575,6 @@ Component({
      */
     nextPageWithAnimation(animationClass: string) {
       if (this.data.currentPage < this.data.totalPages - 1) {
-        this.setData({
-          pageAnimating: true,
-          pageAnimationClass: animationClass
-        })
-
         setTimeout(() => {
           const newPage = this.data.currentPage + 1
           this.updatePageOffset(newPage)
@@ -590,7 +583,7 @@ Component({
             pageAnimationClass: ''
           })
           this.saveReadingProgress()
-        }, 250)
+        }, 300)
       } else {
         this.nextChapter()
       }
@@ -600,9 +593,7 @@ Component({
       if (this.data.currentChapterIndex > 0) {
         this.setData({
           currentChapterIndex: this.data.currentChapterIndex - 1,
-          savedCurrentPage: 0,
-          showControlPanel: false,
-          showSettingsPanel: false
+          savedCurrentPage: 0
         })
         this.loadChapterContent()
         this.saveReadingProgress()
@@ -618,9 +609,7 @@ Component({
       if (this.data.currentChapterIndex < this.data.totalChapters - 1) {
         this.setData({
           currentChapterIndex: this.data.currentChapterIndex + 1,
-          savedCurrentPage: 0,
-          showControlPanel: false,
-          showSettingsPanel: false
+          savedCurrentPage: 0
         })
         this.loadChapterContent()
         this.saveReadingProgress()
@@ -633,11 +622,22 @@ Component({
     },
 
     toggleCatalog() {
-      this.setData({
-        showCatalog: !this.data.showCatalog,
-        showControlPanel: false,
-        showSettingsPanel: false
-      })
+      const willShow = !this.data.showCatalog
+
+      if (willShow) {
+        // 打开目录时，定位到当前章节
+        this.setData({
+          showCatalog: true,
+          showControlPanel: false,
+          showSettingsPanel: false,
+          catalogScrollToView: `chapter-${this.data.currentChapterIndex}`
+        })
+      } else {
+        this.setData({
+          showCatalog: false,
+          catalogScrollToView: ''
+        })
+      }
     },
 
     toggleCatalogSort() {
@@ -650,8 +650,17 @@ Component({
 
       this.setData({
         catalogSortAsc: newSortAsc,
-        displayChapterList: sortedList
+        displayChapterList: sortedList,
+        // 重新定位到当前章节
+        catalogScrollToView: ''
       })
+
+      // 延迟设置，确保列表更新后再滚动
+      setTimeout(() => {
+        this.setData({
+          catalogScrollToView: `chapter-${this.data.currentChapterIndex}`
+        })
+      }, 100)
     },
 
     selectChapter(e: any) {
@@ -739,9 +748,16 @@ Component({
     },
 
     togglePageDirection() {
-      const newDirection = this.data.pageDirection === 'horizontal' ? 'vertical' : 'horizontal'
-      this.setData({ pageDirection: newDirection })
-      this.saveReaderSettings()
+      
+      wx.showToast({
+        title: '功能开发中',
+        icon: 'none'
+      })
+
+      // TODO 翻页
+      // const newDirection = this.data.pageDirection === 'horizontal' ? 'vertical' : 'horizontal'
+      // this.setData({ pageDirection: newDirection })
+      // this.saveReaderSettings()
     },
 
     closeCatalog() {

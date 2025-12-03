@@ -3,6 +3,13 @@ import { OnlineMockApi } from '../../utils/onlineMockApi'
 
 const app = getApp<IAppOption>()
 
+interface UserProfile {
+  avatarUrl: string
+  nickName: string
+  code?: string        // 微信登录凭证
+  phoneNumber?: string // 手机号（需企业认证）
+}
+
 Component({
   data: {
     greeting: '下午好',
@@ -15,6 +22,12 @@ Component({
       todayCount: 0,
       importantCount: 0,
     },
+    // 用户信息
+    userProfile: null as UserProfile | null,
+    showProfilePopup: false,
+    tempAvatarUrl: '',
+    tempNickName: '',
+    tempPhoneNumber: '',
   },
 
   lifetimes: {
@@ -22,6 +35,7 @@ Component({
       this.updateGreeting();
       this.updateDate();
       this.loadStats();
+      this.loadUserProfile();
     },
   },
 
@@ -100,9 +114,7 @@ Component({
 
       switch (appName) {
         case 'reader':
-          wx.switchTab({
-            url: '/pages/online/bookshelf/bookshelf',
-          });
+          this.onReaderTap();
           break;
         case 'todo':
           wx.switchTab({
@@ -133,6 +145,123 @@ Component({
         title: '搜索功能开发中',
         icon: 'none',
       });
+    },
+
+    // 加载本地存储的用户信息
+    loadUserProfile() {
+      const userProfile = wx.getStorageSync('userProfile') as UserProfile | null;
+      if (userProfile) {
+        this.setData({ userProfile });
+      }
+    },
+
+    // 点击阅读按钮检查是否需要授权
+    onReaderTap() {
+      const userProfile = this.data.userProfile;
+      if (!userProfile) {
+        // 未授权，先调用 wx.login 获取 code
+        wx.login({
+          success: (res) => {
+            console.log('wx.login code:', res.code);
+            // 显示授权弹窗
+            this.setData({
+              showProfilePopup: true,
+              tempAvatarUrl: '',
+              tempNickName: '',
+              tempPhoneNumber: '',
+            });
+          },
+          fail: (err) => {
+            console.error('wx.login 失败:', err);
+            wx.showToast({ title: '登录失败', icon: 'none' });
+          }
+        });
+      } else {
+        // 已授权，直接跳转
+        wx.switchTab({
+          url: '/pages/online/bookshelf/bookshelf',
+        });
+      }
+    },
+
+    // 选择头像回调
+    onChooseAvatar(e: WechatMiniprogram.CustomEvent) {
+      const { avatarUrl } = e.detail;
+      this.setData({ tempAvatarUrl: avatarUrl });
+    },
+
+    // 输入昵称回调
+    onNicknameInput(e: WechatMiniprogram.CustomEvent) {
+      const nickName = e.detail.value;
+      this.setData({ tempNickName: nickName });
+    },
+
+    // 获取手机号回调
+    onGetPhoneNumber(e: WechatMiniprogram.CustomEvent) {
+      if (e.detail.code) {
+        // 获取成功，这里拿到的是加密的 code
+        // 正常情况下需要发送到后端解密获取真实手机号
+        // 由于没有后端，这里只存储 code 作为标识
+        console.log('手机号授权 code:', e.detail.code);
+        this.setData({ tempPhoneNumber: '已授权' });
+        wx.showToast({ title: '手机号授权成功', icon: 'success' });
+      } else {
+        console.log('用户拒绝授权手机号');
+        // 用户拒绝也允许继续，手机号非必填
+      }
+    },
+
+    // 确认授权
+    confirmProfile() {
+      const { tempAvatarUrl, tempNickName, tempPhoneNumber } = this.data;
+
+      if (!tempAvatarUrl) {
+        wx.showToast({ title: '请选择头像', icon: 'none' });
+        return;
+      }
+
+      if (!tempNickName.trim()) {
+        wx.showToast({ title: '请输入昵称', icon: 'none' });
+        return;
+      }
+
+      // 调用 wx.login 获取最新 code
+      wx.login({
+        success: (loginRes) => {
+          const userProfile: UserProfile = {
+            avatarUrl: tempAvatarUrl,
+            nickName: tempNickName.trim(),
+            code: loginRes.code,
+            phoneNumber: tempPhoneNumber || undefined,
+          };
+
+          // 保存到本地存储
+          wx.setStorageSync('userProfile', userProfile);
+
+          this.setData({
+            userProfile,
+            showProfilePopup: false,
+          });
+
+          // 跳转到阅读页面
+          wx.switchTab({
+            url: '/pages/online/bookshelf/bookshelf',
+          });
+        },
+        fail: () => {
+          wx.showToast({ title: '登录失败', icon: 'none' });
+        }
+      });
+    },
+
+    // 关闭授权弹窗
+    closeProfilePopup() {
+      this.setData({ showProfilePopup: false });
+    },
+
+    // 阻止事件冒泡
+    preventBubble() {
+      // 空方法，用于阻止事件冒泡
     },
   },
 });

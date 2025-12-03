@@ -48,9 +48,18 @@ interface UserInfo {
   readingTime: number
 }
 
+// 本地存储的用户信息
+interface LocalUserProfile {
+  avatarUrl: string
+  nickName: string
+  code?: string
+  phoneNumber?: string
+}
+
 Component({
   data: {
     userInfo: null as UserInfo | null,
+    localUserProfile: null as LocalUserProfile | null,
     bookList: [] as BookItem[],
     filteredBookList: [] as BookItem[],
     bookGroups: [] as BookGroup[],
@@ -61,11 +70,22 @@ Component({
 
   lifetimes: {
     attached() {
+      this.loadLocalUserProfile()
       this.loadData()
     }
   },
 
   methods: {
+    /**
+     * 加载本地用户信息
+     */
+    loadLocalUserProfile() {
+      const localUserProfile = wx.getStorageSync('userProfile') as LocalUserProfile | null
+      if (localUserProfile) {
+        this.setData({ localUserProfile })
+      }
+    },
+
     /**
      * 加载数据
      */
@@ -169,7 +189,7 @@ Component({
     },
 
     /**
-     * 长按书籍显示删除确认
+     * 长按书籍显示操作菜单
      */
     onLongPressBook(e: any) {
       const bookUrl = e.currentTarget.dataset.bookurl
@@ -180,10 +200,11 @@ Component({
       }
 
       wx.showActionSheet({
-        itemList: ['删除书籍'],
-        itemColor: '#ff4d4f',
+        itemList: ['修改分组', '删除书籍'],
         success: (res) => {
           if (res.tapIndex === 0) {
+            this.showChangeGroupPicker(book)
+          } else if (res.tapIndex === 1) {
             this.confirmDeleteBook(book)
           }
         }
@@ -271,6 +292,128 @@ Component({
     async onPullDownRefresh() {
       await this.loadData()
       wx.stopPullDownRefresh()
+    },
+
+    /**
+     * 新增分组
+     */
+    onAddGroup() {
+      wx.showModal({
+        title: '新增分组',
+        editable: true,
+        placeholderText: '请输入分组名称',
+        success: async (res) => {
+          if (res.confirm && res.content) {
+            const groupName = res.content.trim()
+            if (!groupName) {
+              wx.showToast({
+                title: '分组名称不能为空',
+                icon: 'none'
+              })
+              return
+            }
+
+            try {
+              wx.showLoading({
+                title: '创建中...',
+                mask: true
+              })
+
+              await OnlineMockApi.saveBookGroup(groupName)
+
+              wx.hideLoading()
+              wx.showToast({
+                title: '创建成功',
+                icon: 'success'
+              })
+
+              // 重新加载分组数据
+              this.loadData()
+            } catch (error) {
+              console.error('创建分组失败:', error)
+              wx.hideLoading()
+              wx.showToast({
+                title: '创建失败',
+                icon: 'none'
+              })
+            }
+          }
+        }
+      })
+    },
+
+    /**
+     * 显示修改分组选择器
+     */
+    showChangeGroupPicker(book: BookItem) {
+      // 构建分组名称列表（排除"全部"分组）
+      const groupNames = this.data.bookGroups
+        .filter(g => g.groupId !== -1)
+        .map(g => g.groupName)
+
+      if (groupNames.length === 0) {
+        wx.showToast({
+          title: '暂无可用分组',
+          icon: 'none'
+        })
+        return
+      }
+
+      wx.showActionSheet({
+        itemList: groupNames,
+        success: async (res) => {
+          const selectedGroup = this.data.bookGroups.filter(g => g.groupId !== -1)[res.tapIndex]
+          if (selectedGroup) {
+            await this.changeBookGroup(book, selectedGroup.groupId)
+          }
+        }
+      })
+    },
+
+    /**
+     * 修改书籍分组
+     */
+    async changeBookGroup(book: BookItem, groupId: number) {
+      try {
+        wx.showLoading({
+          title: '修改中...',
+          mask: true
+        })
+
+        await OnlineMockApi.saveBookGroupId(book.bookUrl, groupId)
+
+        wx.hideLoading()
+        wx.showToast({
+          title: '修改成功',
+          icon: 'success'
+        })
+
+        // 更新本地书籍列表中的分组信息
+        const updatedBookList = this.data.bookList.map(b => {
+          if (b.bookUrl === book.bookUrl) {
+            return { ...b, group: groupId }
+          }
+          return b
+        })
+
+        // 如果当前正在筛选分组，需要更新筛选列表
+        let updatedFilteredList = updatedBookList
+        if (this.data.currentGroupId !== -1) {
+          updatedFilteredList = updatedBookList.filter(b => b.group === this.data.currentGroupId)
+        }
+
+        this.setData({
+          bookList: updatedBookList,
+          filteredBookList: updatedFilteredList
+        })
+      } catch (error) {
+        console.error('修改分组失败:', error)
+        wx.hideLoading()
+        wx.showToast({
+          title: '修改失败',
+          icon: 'none'
+        })
+      }
     }
   }
 })

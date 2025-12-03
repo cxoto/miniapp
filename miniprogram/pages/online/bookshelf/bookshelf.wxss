@@ -88,6 +88,17 @@
   opacity: 0.8;
 }
 
+.add-group-btn {
+  background-color: transparent;
+  border: 2rpx dashed #999;
+  color: #999;
+}
+
+.add-group-btn text {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
 /* 书架列表 */
 .book-list {
   padding: 20rpx 30rpx;
